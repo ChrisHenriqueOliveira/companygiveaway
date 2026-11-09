@@ -24,9 +24,18 @@ interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: ReactNode;
 }
 
-export function Button({ variant = 'primary', size = 'md', icon, className, children, ...rest }: Props) {
+export function Button({ variant = 'primary', size = 'md', icon, className, children, onClick, ...rest }: Props) {
   return (
-    <button type="button" className={cn('btn-3d', VARIANT[variant], SIZE[size], className)} {...rest}>
+    <button
+      type="button"
+      className={cn('btn-3d', VARIANT[variant], SIZE[size], className)}
+      {...rest}
+      onClick={(e) => {
+        onClick?.(e);
+        // Sem foco preso no botão: Espaço/Enter do passador de slides não reacionam o último botão clicado.
+        e.currentTarget.blur();
+      }}
+    >
       {icon}
       {children}
     </button>

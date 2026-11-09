@@ -1,5 +1,5 @@
 import type { AppData } from '../domain/types';
-import { isAppDataShape, migrate } from '../store/persistence';
+import { isAppDataShape, migrate, validateAppData } from '../store/persistence';
 
 /** Só os dados do evento: o modo ensaio e erros de storage nunca entram no backup. */
 export function serializeBackup(d: AppData): string {
@@ -17,5 +17,7 @@ export function parseBackup(text: string): { ok: true; data: AppData } | { ok: f
   if (!isAppDataShape(raw)) {
     return { ok: false, error: 'Este arquivo não parece um backup do Sorteio Viceri.' };
   }
+  const problem = validateAppData(raw);
+  if (problem) return { ok: false, error: `Backup com dados inválidos (${problem}). Nada foi alterado.` };
   return { ok: true, data: migrate(raw) };
 }

@@ -1,9 +1,11 @@
-import { Ban, FileUp, Trash2, UserCheck } from 'lucide-react';
+import { Ban, FileUp, RotateCcw, Trash2, UserCheck } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { normalizeEmail } from '../domain/email';
+import { foldText } from '../domain/text';
+import type { Participant } from '../domain/types';
 import { useActions } from '../store/actions';
 import { useAppStore } from '../store/appStore';
-import { Avatar, Badge, Button, Card, EmptyState, toast } from '../ui';
+import { Avatar, Badge, Button, Card, ConfirmDialog, EmptyState, toast } from '../ui';
 import { ImportDialog } from './ImportDialog';
 import { PersonForm } from './PersonForm';
 import { SearchBox } from './SearchBox';
@@ -15,13 +17,19 @@ export function ParticipantsTab() {
   const draws = useAppStore((s) => s.draws);
   const [query, setQuery] = useState('');
   const [importing, setImporting] = useState(false);
+  const [removing, setRemoving] = useState<Participant>();
 
   const blocked = useMemo(() => new Set(excluded.map((e) => normalizeEmail(e.email))), [excluded]);
   const winners = useMemo(() => new Set(draws.filter((d) => d.status === 'confirmed').map((d) => d.participantId)), [draws]);
+  const absentRecords = useMemo(() => {
+    const m = new Map<string, string[]>();
+    for (const d of draws) if (d.status === 'absent') m.set(d.participantId, [...(m.get(d.participantId) ?? []), d.id]);
+    return m;
+  }, [draws]);
   const excludedCount = participants.filter((p) => blocked.has(normalizeEmail(p.email))).length;
 
-  const q = query.trim().toLowerCase();
-  const shown = q ? participants.filter((p) => p.name.toLowerCase().includes(q) || p.email.includes(q)) : participants;
+  const q = foldText(query.trim());
+  const shown = q ? participants.filter((p) => foldText(p.name).includes(q) || foldText(p.email).includes(q)) : participants;
 
   const exclude = (id: string) => {
     const p = participants.find((x) => x.id === id);
@@ -36,6 +44,11 @@ export function ParticipantsTab() {
     }
   };
 
+  const comeBack = (p: Participant) => {
+    for (const id of absentRecords.get(p.id) ?? []) actions.removeDraw(id);
+    toast(`${p.name} voltou a concorrer.`, 'success');
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <Card className="flex flex-col gap-5 p-5">
@@ -44,6 +57,7 @@ export function ParticipantsTab() {
             <h3 className="text-xl font-black text-eel">Participantes</h3>
             <Badge color="blue">{participants.length} no total</Badge>
             {excludedCount > 0 && <Badge color="purple">{excludedCount} excluídos do sorteio</Badge>}
+            {absentRecords.size > 0 && <Badge color="red">{absentRecords.size} ausentes</Badge>}
           </div>
           <Button icon={<FileUp size={18} strokeWidth={3} />} onClick={() => setImporting(true)}>
             Importar planilha
@@ -61,6 +75,7 @@ export function ParticipantsTab() {
             {shown.map((p) => {
               const won = winners.has(p.id);
               const isExcluded = blocked.has(normalizeEmail(p.email));
+              const isAbsent = !won && absentRecords.has(p.id);
               return (
                 <li key={p.id} className="flex items-center gap-3 rounded-2xl border-2 border-swan p-2.5 pr-3">
                   <Avatar name={p.name} email={p.email} size={40} />
@@ -69,7 +84,19 @@ export function ParticipantsTab() {
                     <div className="truncate text-sm font-bold text-wolf">{p.email}</div>
                   </div>
                   {won && <Badge color="green">Ganhou</Badge>}
+                  {isAbsent && <Badge color="red">Ausente</Badge>}
                   {isExcluded && <Badge color="purple">Excluído</Badge>}
+                  {isAbsent && (
+                    <button
+                      type="button"
+                      aria-label={`Voltar ${p.name} a concorrer`}
+                      title="Voltar a concorrer"
+                      onClick={() => comeBack(p)}
+                      className="rounded-lg p-2 text-feather-dark hover:bg-polar"
+                    >
+                      <RotateCcw size={18} strokeWidth={3} />
+                    </button>
+                  )}
                   <button
                     type="button"
                     aria-label={isExcluded ? `Voltar ${p.name} ao sorteio` : `Excluir ${p.name} do sorteio`}
@@ -84,7 +111,7 @@ export function ParticipantsTab() {
                     aria-label={`Remover ${p.name}`}
                     title={won ? 'Quem já ganhou não pode ser removido' : 'Remover da lista'}
                     disabled={won}
-                    onClick={() => actions.removeParticipant(p.id)}
+                    onClick={() => setRemoving(p)}
                     className="rounded-lg p-2 text-wolf hover:bg-polar hover:text-cardinal disabled:cursor-not-allowed disabled:opacity-30"
                   >
                     <Trash2 size={18} strokeWidth={3} />
@@ -98,6 +125,18 @@ export function ParticipantsTab() {
       </Card>
 
       <ImportDialog open={importing} onClose={() => setImporting(false)} />
+      <ConfirmDialog
+        open={!!removing}
+        title="Remover participante"
+        message={removing ? `Remover ${removing.name} (${removing.email}) da lista de participantes?` : ''}
+        confirmLabel="Remover"
+        danger
+        onCancel={() => setRemoving(undefined)}
+        onConfirm={() => {
+          if (removing) actions.removeParticipant(removing.id);
+          setRemoving(undefined);
+        }}
+      />
     </div>
   );
 }

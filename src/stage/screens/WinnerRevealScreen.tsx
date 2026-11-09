@@ -2,7 +2,6 @@ import { motion } from 'motion/react';
 import { RefreshCw } from 'lucide-react';
 import { useEffect } from 'react';
 import { currentDraw } from '../../domain/engine';
-import { Presentinho } from '../../mascot/Presentinho';
 import { useAppStore } from '../../store/appStore';
 import { useView } from '../../store/hooks';
 import { Avatar, Button } from '../../ui';
@@ -10,6 +9,7 @@ import { PrizeImage } from '../../ui/PrizeImage';
 import { cannons } from '../confetti';
 import { lockStage } from '../lock';
 import { pacing } from '../pacing';
+import { useWindowSize } from '../useWindowSize';
 
 /**
  * Revelação em etapas, no ritmo do suspense configurado (k = 1 com 7 s):
@@ -22,6 +22,7 @@ export function WinnerRevealScreen({ onPrimary, onAbsent }: { onPrimary: () => v
   const prize = useAppStore((s) => (draw ? s.prizes[draw.prizeId] : undefined));
   const image = useAppStore((s) => (prize?.imageId ? s.images[prize.imageId] : undefined));
   const { winnerScale: k, winnerLockMs } = pacing(suspense);
+  const { h } = useWindowSize();
 
   useEffect(() => {
     lockStage(winnerLockMs);
@@ -36,8 +37,8 @@ export function WinnerRevealScreen({ onPrimary, onAbsent }: { onPrimary: () => v
   }, [k, winnerLockMs]);
 
   if (!draw) return null;
-  const hero = Math.round(Math.min(window.innerHeight * 0.27, 310));
-  const avatar = Math.round(Math.min(window.innerHeight * 0.12, 130));
+  const hero = Math.round(Math.min(h * 0.27, 310));
+  const avatar = Math.round(Math.min(h * 0.12, 130));
   const spring = { type: 'spring', stiffness: 220, damping: 16 } as const;
 
   return (
@@ -109,9 +110,6 @@ export function WinnerRevealScreen({ onPrimary, onAbsent }: { onPrimary: () => v
         </button>
       </motion.div>
 
-      <div className="pointer-events-none fixed bottom-6 left-[3vw] hidden xl:block">
-        <Presentinho mood="celebrate" size={Math.round(Math.min(window.innerHeight * 0.2, 190))} />
-      </div>
     </div>
   );
 }

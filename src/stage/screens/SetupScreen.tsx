@@ -1,10 +1,12 @@
 import { motion } from 'motion/react';
 import { Check, X } from 'lucide-react';
 import { Presentinho } from '../../mascot/Presentinho';
+import { useWindowSize } from '../useWindowSize';
 import { useAppStore } from '../../store/appStore';
 import { Button } from '../../ui';
 
 export function SetupScreen({ onOpenBackstage }: { onOpenBackstage: () => void }) {
+  const { h } = useWindowSize();
   const hasPrizes = useAppStore((s) => Object.keys(s.prizes).length > 0);
   const hasPeople = useAppStore((s) => s.participants.length > 0);
   const items = [
@@ -13,7 +15,7 @@ export function SetupScreen({ onOpenBackstage }: { onOpenBackstage: () => void }
   ];
   return (
     <div className="flex flex-col items-center gap-8 text-center">
-      <Presentinho mood="idle" size={Math.round(Math.min(window.innerHeight * 0.34, 320))} />
+      <Presentinho mood="idle" size={Math.round(Math.min(h * 0.34, 320))} />
       <h1 className="text-[clamp(2.4rem,5vw,5rem)] font-black text-eel">Vamos preparar o sorteio!</h1>
       <ul className="flex flex-col gap-3">
         {items.map((it, i) => (

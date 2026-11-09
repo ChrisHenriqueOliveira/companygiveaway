@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { LivePanel } from '../../src/control/LivePanel';
 import { createEmptyData } from '../../src/domain/types';
@@ -58,6 +58,7 @@ describe('LivePanel buttons send plain commands to the stage', () => {
     settle();
     fireEvent.click(screen.getByRole('button', { name: /^confirmar$/i }));
     fireEvent.click(screen.getByRole('button', { name: /ausente/i }));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: /sim, ausente/i }));
 
     expect(calls).toEqual([
       ['stageStartDraw', []],

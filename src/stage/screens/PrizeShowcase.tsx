@@ -1,8 +1,10 @@
 import { useAppStore } from '../../store/appStore';
 import { PrizeImage } from '../../ui/PrizeImage';
+import { useWindowSize } from '../useWindowSize';
 
 /** Imagem + nome do prêmio. O palco nunca mostra mais do que o prêmio da vez. */
 export function PrizeShowcase({ prizeId, compact = false }: { prizeId?: string; compact?: boolean }) {
+  const { h } = useWindowSize();
   const prize = useAppStore((s) => (prizeId ? s.prizes[prizeId] : undefined));
   const image = useAppStore((s) => (prize?.imageId ? s.images[prize.imageId] : undefined));
   if (!prize) return null;
@@ -17,7 +19,7 @@ export function PrizeShowcase({ prizeId, compact = false }: { prizeId?: string; 
   }
   return (
     <div className="flex max-w-[80vw] flex-col items-center gap-5 text-center">
-      <PrizeImage src={image} fit="contain" size={Math.round(Math.min(window.innerHeight * 0.38, 400))} className="!rounded-[36px] !border-4 shadow-xl" />
+      <PrizeImage src={image} fit="contain" size={Math.round(Math.min(h * 0.38, 400))} className="!rounded-[36px] !border-4 shadow-xl" />
       <span className="text-[clamp(2.2rem,5vw,5.5rem)] font-black leading-tight text-eel">{prize.name}</span>
     </div>
   );

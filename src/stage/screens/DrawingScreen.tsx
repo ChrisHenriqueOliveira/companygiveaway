@@ -8,6 +8,7 @@ import { useView } from '../../store/hooks';
 import { Avatar } from '../../ui';
 import { pacing } from '../pacing';
 import { buildReelWithMargins } from '../reel';
+import { useWindowSize } from '../useWindowSize';
 import { PrizeShowcase } from './PrizeShowcase';
 
 const REEL_LENGTH = 36;
@@ -32,7 +33,8 @@ export function DrawingScreen() {
         )
       : { cards: [], winnerIndex: 0 },
   );
-  const [H] = useState(() => Math.max(84, Math.round(Math.min(window.innerHeight * 0.125, 132))));
+  const { w, h } = useWindowSize();
+  const H = Math.max(84, Math.round(Math.min(h * 0.125, 132)));
 
   useEffect(() => {
     if (!draw) {
@@ -47,14 +49,14 @@ export function DrawingScreen() {
   // O cartão do centro fica 2 linhas abaixo do topo da janela. Começa no 1º cartão de verdade e termina no ganhador.
   const startY = 0;
   const endY = (2 - winnerIndex) * H;
-  const width = Math.min(window.innerWidth * 0.62, 820);
+  const width = Math.min(w * 0.62, 820);
 
   return (
     <div className="flex flex-col items-center gap-6">
       <PrizeShowcase prizeId={draw?.prizeId} compact />
       <div className="flex items-center gap-[2vw]">
         <div className="hidden lg:block">
-          <Presentinho mood="suspense" size={Math.round(Math.min(window.innerHeight * 0.26, 240))} />
+          <Presentinho mood="suspense" size={Math.round(Math.min(h * 0.26, 240))} />
         </div>
         <div
           aria-label="Sorteando"
