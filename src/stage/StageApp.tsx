@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'motion/react';
+import { motion } from 'motion/react';
 import { Monitor, Settings } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { BackstagePanel } from '../backstage/BackstagePanel';
@@ -97,13 +97,12 @@ export function StageApp() {
       </header>
 
       <div className="relative z-10 flex min-h-0 flex-1 items-center justify-center px-[4vw] pb-8">
-        <AnimatePresence mode="wait">
-          <motion.div
+        {/* Sem animação de saída: o estado do sorteio nunca pode depender de uma animação terminar. */}
+        <motion.div
             key={screen}
             className="flex h-full w-full items-center justify-center"
             initial={{ opacity: 0, scale: 0.96, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.98, transition: { duration: 0.15 } }}
             transition={{ type: 'spring', stiffness: 300, damping: 26 }}
           >
             {screen === 'setup' && <SetupScreen onOpenBackstage={openBackstage} />}
@@ -114,17 +113,14 @@ export function StageApp() {
             {screen === 'noEligible' && <NoEligibleScreen onPrimary={onPrimary} onOpenBackstage={openBackstage} />}
             {screen === 'finale' && <FinaleScreen />}
           </motion.div>
-        </AnimatePresence>
       </div>
 
-      <AnimatePresence>
-        {redrawing && (
+      {redrawing && (
           <motion.div
             key="redraw"
             className="absolute inset-0 z-30 flex items-center justify-center bg-white/85 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
           >
             <motion.p
               initial={{ scale: 0.6, rotate: -4 }}
@@ -136,7 +132,6 @@ export function StageApp() {
             </motion.p>
           </motion.div>
         )}
-      </AnimatePresence>
 
       <div className="absolute bottom-4 left-4 z-20 flex gap-2 opacity-30 transition-opacity hover:opacity-100 focus-within:opacity-100">
         <button type="button" aria-label="Abrir bastidores" title="Bastidores (Ctrl+K)" onClick={openBackstage} className="rounded-xl p-2 text-wolf hover:bg-polar">

@@ -1,4 +1,4 @@
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { Button } from '../../ui';
 import { burst } from '../confetti';
@@ -32,9 +32,8 @@ export function PrizeRevealScreen({ prizeId, onPrimary }: { prizeId?: string; on
   return (
     <div className="flex flex-col items-center gap-10">
       <div className="flex min-h-[48vh] items-center justify-center">
-        <AnimatePresence mode="wait">
-          {step !== 'show' ? (
-            <motion.div key="box" exit={{ scale: 0.4, opacity: 0, y: 40 }} transition={{ duration: 0.25 }}>
+        {step !== 'show' ? (
+            <motion.div key="box">
               <GiftBox size={size} shaking={step === 'shake' && !reduced} popped={step === 'pop'} />
             </motion.div>
           ) : (
@@ -47,7 +46,6 @@ export function PrizeRevealScreen({ prizeId, onPrimary }: { prizeId?: string; on
               <PrizeShowcase prizeId={prizeId} />
             </motion.div>
           )}
-        </AnimatePresence>
       </div>
       <div className="h-24">
         {ready && (
