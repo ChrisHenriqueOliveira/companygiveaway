@@ -6,7 +6,7 @@ import { useAppStore, type AppState } from '../../src/store/appStore';
 import { resetStageLock } from '../../src/stage/lock';
 import { deriveScreen } from '../../src/stage/deriveScreen';
 import { StageApp } from '../../src/stage/StageApp';
-import { openControlWindow } from '../../src/sync/openControl';
+import { isControlWindowOpen, openControlWindow } from '../../src/sync/openControl';
 
 // Animações de saída não terminam no jsdom com relógio falso: sem isso a próxima tela nunca monta.
 // O resto do motion continua real; só o AnimatePresence vira passthrough.
@@ -15,7 +15,7 @@ vi.mock('motion/react', async (importOriginal) => ({
   AnimatePresence: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
-vi.mock('../../src/sync/openControl', () => ({ openControlWindow: vi.fn(() => ({})) }));
+vi.mock('../../src/sync/openControl', () => ({ openControlWindow: vi.fn(() => ({})), isControlWindowOpen: vi.fn(() => false) }));
 
 vi.mock('../../src/stage/confetti', () => ({
   burst: () => undefined,
@@ -52,6 +52,8 @@ const screenOf = () => document.querySelector('main')?.getAttribute('data-screen
 const phase = () => useAppStore.getState().stage.phase;
 
 beforeEach(() => {
+  vi.mocked(openControlWindow).mockClear();
+  vi.mocked(isControlWindowOpen).mockReturnValue(false);
   vi.useFakeTimers();
   localStorage.clear();
   resetActionsProvider();
@@ -173,14 +175,33 @@ describe('StageApp', () => {
     expect(document.querySelector('[role="dialog"]')).toBeNull();
   });
 
-  it('Ctrl+K and the backstage buttons open the Controle window, never a modal on the projector', () => {
+  it('asks "are you sure?" before opening the Controle window (a stray click could expose the queue on the projector)', () => {
+    seed();
+    render(<StageApp />);
+
+    fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
+    expect(screen.getByText(/certeza que quer abrir/i)).toBeInTheDocument();
+    expect(openControlWindow).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole('button', { name: /cancelar/i }));
+    expect(screen.queryByText(/certeza que quer abrir/i)).not.toBeInTheDocument();
+    expect(openControlWindow).not.toHaveBeenCalled();
+
+    // o ícone do canto passa pelo mesmo aviso
+    fireEvent.click(screen.getByRole('button', { name: /abrir bastidores/i }));
+    expect(openControlWindow).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: /sim, abrir o controle/i }));
+    expect(openControlWindow).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText(/certeza que quer abrir/i)).not.toBeInTheDocument();
+  });
+
+  it('does not ask again when the Controle window is already open: it just brings it to the front', () => {
+    vi.mocked(isControlWindowOpen).mockReturnValue(true);
     seed();
     render(<StageApp />);
     fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
+    expect(screen.queryByText(/certeza que quer abrir/i)).not.toBeInTheDocument();
     expect(openControlWindow).toHaveBeenCalledTimes(1);
-    fireEvent.click(screen.getByRole('button', { name: /abrir bastidores/i }));
-    expect(openControlWindow).toHaveBeenCalledTimes(2);
-    expect(document.querySelector('[role="dialog"]')).toBeNull();
   });
 
   it('shows the setup screen when there is nothing to draw yet', () => {
