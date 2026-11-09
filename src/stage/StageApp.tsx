@@ -5,6 +5,7 @@ import { BackstagePanel } from '../backstage/BackstagePanel';
 import { selectActiveStage, useAppStore } from '../store/appStore';
 import { useActions } from '../store/actions';
 import { openControlWindow } from '../sync/openControl';
+import { startOwnerBridge } from '../sync/ownerBridge';
 import { Modal, Toaster } from '../ui';
 import { deriveScreen } from './deriveScreen';
 import { useStageHotkeys } from './hotkeys';
@@ -34,6 +35,7 @@ export function StageApp() {
   const redrawTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => () => clearTimeout(redrawTimer.current), []);
+  useEffect(() => startOwnerBridge(), []); // atende a janela de Controle (se houver)
 
   const onPrimary = () => {
     if (isStageLocked()) return;

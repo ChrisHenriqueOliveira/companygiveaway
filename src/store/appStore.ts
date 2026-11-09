@@ -112,6 +112,9 @@ function gcImages(images: AppData['images'], prizes: AppData['prizes'], logoImag
   return Object.fromEntries(Object.entries(images).filter(([id]) => used.has(id)));
 }
 
+/** Só os dados do evento (sem ensaio nem erro de storage): o que se persiste e o que o Controle espelha. */
+export const selectData = (s: AppState): AppData => dataKeys(s);
+
 const dataKeys = (s: AppState): AppData => ({
   version: 1,
   prizes: s.prizes,
