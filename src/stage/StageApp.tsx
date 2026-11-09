@@ -1,7 +1,9 @@
 import { motion } from 'motion/react';
-import { Monitor } from 'lucide-react';
+import { Monitor, Printer } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Presentinho } from '../mascot/Presentinho';
+import { printWinners } from '../print/printWinners';
+import { WinnersPrintSheet } from '../print/WinnersPrintSheet';
 import { selectActiveStage, useAppStore } from '../store/appStore';
 import { STORAGE_KEY } from '../store/persistence';
 import { useActions } from '../store/actions';
@@ -107,6 +109,9 @@ export function StageApp() {
           absent: onAbsent,
           fullscreen: toggleFullscreen,
           backstage: openControl,
+          print: () => {
+            if (screen === 'finale') printWinners();
+          },
         },
   );
 
@@ -181,6 +186,13 @@ export function StageApp() {
         </motion.div>
       )}
 
+      {screen === 'finale' && (
+        <div className="absolute bottom-4 left-4 z-20 flex gap-2 opacity-30 transition-opacity hover:opacity-100 focus-within:opacity-100">
+          <button type="button" aria-label="Imprimir ganhadores" title="Imprimir ganhadores (P)" onClick={printWinners} className="rounded-xl p-2 text-wolf hover:bg-polar">
+            <Printer size={22} strokeWidth={2.5} />
+          </button>
+        </div>
+      )}
       <div className="absolute bottom-4 right-4 z-20 flex gap-2 opacity-30 transition-opacity hover:opacity-100 focus-within:opacity-100">
         <button type="button" aria-label="Abrir bastidores (janela de controle)" title="Bastidores / janela de controle (Ctrl+K)" onClick={openControl} className="rounded-xl p-2 text-wolf hover:bg-polar">
           <Monitor size={22} strokeWidth={2.5} />
@@ -202,6 +214,7 @@ export function StageApp() {
         onConfirm={confirmOpenControl}
       />
       <Toaster />
+      <WinnersPrintSheet />
 
       {conflict && (
         <div role="alertdialog" aria-label="Sorteio aberto em outra janela" className="fixed inset-0 z-[70] flex flex-col items-center justify-center gap-6 bg-white p-10 text-center">

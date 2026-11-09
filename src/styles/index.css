@@ -146,3 +146,37 @@ body {
   box-shadow: 0 0 0 2px var(--color-feather-dark);
   cursor: pointer;
 }
+
+/* Folha de ganhadores: invisível na tela, é a única coisa que sai na impressão / PDF. */
+.print-root {
+  display: none;
+}
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 12mm;
+  }
+  html,
+  body {
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+  body > *:not(.print-root) {
+    display: none !important;
+  }
+  .print-root {
+    display: block;
+    color: #222;
+    font-family: var(--font-sans);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .print-root thead {
+    display: table-header-group;
+  }
+  .print-root tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}

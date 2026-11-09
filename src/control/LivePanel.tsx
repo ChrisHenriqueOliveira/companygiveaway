@@ -1,4 +1,5 @@
-import { Undo2 } from 'lucide-react';
+import { Printer, Undo2 } from 'lucide-react';
+import { printWinners } from '../print/printWinners';
 import { useEffect, useMemo, useState } from 'react';
 import { undoMessage } from '../backstage/messages';
 import { currentDraw, eligibleParticipants, lastDraw, pendingQueue } from '../domain/engine';
@@ -6,7 +7,7 @@ import { deriveScreen, type StageScreen } from '../stage/deriveScreen';
 import { pacing } from '../stage/pacing';
 import { useActions } from '../store/actions';
 import { selectActiveStage, selectUndoView, useAppStore } from '../store/appStore';
-import { useCanUndo, useView } from '../store/hooks';
+import { useCanUndo, useView, useWinners } from '../store/hooks';
 import { Avatar, Badge, Button, Card, ConfirmDialog } from '../ui';
 import { PrizeImage } from '../ui/PrizeImage';
 
@@ -38,6 +39,7 @@ export function LivePanel() {
   const state = useAppStore();
   const view = useView();
   const canUndo = useCanUndo();
+  const winners = useWinners();
   const [asking, setAsking] = useState(false);
   const [askAbsent, setAskAbsent] = useState(false);
 
@@ -122,6 +124,11 @@ export function LivePanel() {
           <Button variant="warning" icon={<Undo2 size={18} strokeWidth={3} />} disabled={!canUndo} onClick={() => setAsking(true)}>
             Desfazer último
           </Button>
+          {winners.length > 0 && (
+            <Button variant="ghost" icon={<Printer size={18} strokeWidth={3} />} onClick={printWinners}>
+              Imprimir ganhadores
+            </Button>
+          )}
           <p className="text-xs font-bold text-wolf">
             As teclas → e PageDown do passador de slides também avançam o sorteio com esta janela em foco.
           </p>

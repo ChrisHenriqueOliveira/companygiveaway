@@ -1,20 +1,33 @@
 import { motion } from 'motion/react';
+import { Gift, Trophy } from 'lucide-react';
 import { useEffect } from 'react';
+import { finaleLayout } from '../../domain/winners';
 import { Presentinho } from '../../mascot/Presentinho';
-import { useAppStore } from '../../store/appStore';
+import { useWinners } from '../../store/hooks';
 import { Avatar } from '../../ui';
 import { softRain } from '../confetti';
+import { useWindowSize } from '../useWindowSize';
 
-/** Mural final: de até 5×4 cartões; com mais de 20 ganhadores os cartões encolhem para caber. */
+/** Cada prêmio ganha uma cor; ela liga visualmente a faixa do prêmio ao cartão do ganhador. */
+const ACCENTS = [
+  { bg: '#58CC02', fg: '#fff' },
+  { bg: '#1CB0F6', fg: '#fff' },
+  { bg: '#FF9600', fg: '#fff' },
+  { bg: '#CE82FF', fg: '#fff' },
+  { bg: '#FF4B4B', fg: '#fff' },
+  { bg: '#FFC800', fg: '#4B4B4B' },
+] as const;
+
+/**
+ * Mural final: um cartão por ganhador, lendo de cima para baixo "o prêmio → quem ganhou":
+ * imagem grande do prêmio, faixa colorida com o nome do prêmio e, embaixo, o ganhador.
+ */
 export function FinaleScreen() {
-  const real = useAppStore((s) => s.draws);
-  const rehearsal = useAppStore((s) => s.rehearsal);
-  const source = rehearsal.active ? rehearsal.draws : real;
-  const winners = source.filter((d) => d.status === 'confirmed');
-  const n = winners.length;
-
+  const winners = useWinners();
+  const { h } = useWindowSize();
   useEffect(() => softRain(), []);
 
+  const n = winners.length;
   if (n === 0) {
     return (
       <div className="flex flex-col items-center gap-6 text-center">
@@ -24,46 +37,82 @@ export function FinaleScreen() {
     );
   }
 
-  // Poucos ganhadores: cartões grandes. Até 20 cabem em 5×4; acima disso encolhem para caber.
-  const tier = n <= 4 ? 0 : n <= 9 ? 1 : n <= 16 ? 2 : n <= 20 ? 3 : 4;
-  const cols = [2, 3, 4, 5, n <= 30 ? 6 : 8][tier];
-  const avatar = [112, 88, 72, 64, 44][tier];
-  const nameVw = [2.6, 2.1, 1.7, 1.45, 1.1][tier];
-  const maxWidth = [1100, 1500, 1700, 1700, 1800][tier];
+  const L = finaleLayout(n);
+  const imageH = Math.round((h * L.imageVh) / 100);
+  const mascot = Math.max(72, Math.round(Math.min(h * 0.13, 130)));
 
   return (
-    <div className="flex h-full w-full flex-col items-center gap-6 py-2">
-      <motion.h1
+    <div className="flex w-full flex-col items-center gap-[2vh]">
+      <motion.div
         initial={{ y: -30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 260, damping: 16 }}
-        className="text-[clamp(2rem,4vw,4.2rem)] font-black text-feather"
+        className="flex items-center gap-5"
       >
-        Parabéns aos ganhadores!
-      </motion.h1>
-      <div className="flex min-h-0 w-full flex-1 items-center justify-center">
-        <ul className="grid w-full gap-3" style={{ maxWidth, gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
-          {winners.map((d, i) => (
+        <Presentinho mood="celebrate" size={mascot} />
+        <div className="flex flex-col items-start leading-tight">
+          <h1 className="text-[clamp(2rem,3.6vw,4rem)] font-black text-feather">Parabéns aos ganhadores!</h1>
+          <span className="inline-flex items-center gap-2 text-[clamp(1rem,1.5vw,1.6rem)] font-extrabold text-wolf">
+            <Trophy size={20} strokeWidth={3} className="text-bee-dark" />
+            {n === 1 ? '1 sortudo' : `${n} sortudos`}
+          </span>
+        </div>
+      </motion.div>
+
+      <ul
+        className="grid w-full gap-[1.2vw]"
+        style={{ gridTemplateColumns: `repeat(${L.cols}, minmax(0, 1fr))`, maxWidth: Math.min(1800, L.cols * 420) }}
+      >
+        {winners.map((w, i) => {
+          const accent = ACCENTS[i % ACCENTS.length];
+          return (
             <motion.li
-              key={d.id}
-              initial={{ scale: 0.6, opacity: 0, y: 30 }}
+              key={w.draw.id}
+              aria-label={`${w.draw.name} ganhou ${w.prizeName}`}
+              initial={{ scale: 0.6, opacity: 0, y: 40 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 20, delay: Math.min(i * 0.05, 1.2) }}
-              className="flex items-center gap-4 rounded-[22px] border-2 border-b-4 border-swan bg-white p-3.5"
+              transition={{ type: 'spring', stiffness: 260, damping: 18, delay: Math.min(0.3 + i * 0.07, 1.8) }}
+              className="relative flex flex-col overflow-hidden rounded-[22px] border-2 border-b-[6px] border-swan bg-white shadow-sm"
             >
-              <Avatar name={d.name} email={d.email} size={avatar} />
-              <div className="min-w-0">
-                <div className="break-words font-black leading-tight text-eel" style={{ fontSize: `clamp(0.95rem, ${nameVw}vw, 3rem)` }}>
-                  {d.name}
-                </div>
-                <div className="break-words font-extrabold leading-tight text-feather-dark" style={{ fontSize: `clamp(0.8rem, ${nameVw * 0.72}vw, 2.2rem)` }}>
-                  {d.prizeName}
+              <div
+                className="relative flex items-center justify-center"
+                style={{ height: imageH, background: `${accent.bg}1f` }}
+              >
+                {w.image ? (
+                  <img src={w.image} alt="" className="h-full w-full object-contain p-2" />
+                ) : (
+                  <Gift size={Math.round(imageH * 0.5)} strokeWidth={2.2} style={{ color: accent.bg }} />
+                )}
+                <span
+                  className="absolute left-2 top-2 inline-flex h-8 min-w-8 items-center justify-center rounded-full bg-bee px-2 text-sm font-black text-eel shadow"
+                  aria-hidden="true"
+                >
+                  {w.order}º
+                </span>
+              </div>
+
+              <div
+                title={w.prizeName}
+                className="flex min-h-[2.9em] items-center justify-center break-words px-3 py-1.5 text-center font-black leading-tight"
+                style={{ background: accent.bg, color: accent.fg, fontSize: `clamp(0.8rem, ${L.nameVw * 0.78}vw, 2rem)` }}
+              >
+                <span className="line-clamp-2">{w.prizeName}</span>
+              </div>
+
+              <div className="flex flex-1 items-center gap-3 p-3">
+                <Avatar name={w.draw.name} email={w.draw.email} size={L.avatar} />
+                <div
+                  title={w.draw.name}
+                  className="line-clamp-3 min-w-0 break-words font-black leading-tight text-eel"
+                  style={{ fontSize: `clamp(0.95rem, ${L.nameVw}vw, 3rem)` }}
+                >
+                  {w.draw.name}
                 </div>
               </div>
             </motion.li>
-          ))}
-        </ul>
-      </div>
+          );
+        })}
+      </ul>
     </div>
   );
 }

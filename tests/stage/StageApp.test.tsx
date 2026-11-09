@@ -82,7 +82,14 @@ describe('StageApp', () => {
     seed();
     render(<StageApp />);
     const seen: string[] = [];
-    const snap = () => seen.push(document.body.textContent ?? '');
+    // A folha de impressão fica escondida na tela (display:none): só conta o que o público realmente vê.
+    const snap = () =>
+      seen.push(
+        [...document.body.children]
+          .filter((el) => !el.classList.contains('print-root'))
+          .map((el) => el.textContent)
+          .join(' '),
+      );
 
     expect(screenOf()).toBe('idle');
     expect(screen.getByRole('button', { name: /próximo prêmio/i })).toBeInTheDocument();
