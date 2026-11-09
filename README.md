@@ -32,6 +32,8 @@ Os **Bastidores** abrem sempre na janela de **Controle** (ícone de monitor, ou 
 | `Ctrl+K` | Abre/fecha os Bastidores |
 | `Esc` | Fecha o modal |
 
+No Controle, depois de clicar nele o passador de slides continua funcionando (teclas `→` e `PageDown`). O "Ausente" no Controle pede confirmação com o nome da pessoa.
+
 Os botões "tela preta" dos passadores de slide (`B`, `.`, `W`) e `PageUp` são ignorados de propósito.
 
 ### Tempos (aba Evento)
@@ -71,11 +73,13 @@ Os dois são independentes e valem sempre, mesmo com "reduzir movimento" ligado 
 **Se algo der errado:**
 - Fechou a aba ou deu F5 no meio de um sorteio: reabra e o app continua do mesmo ponto.
 - Clicou errado: Histórico → **Desfazer último** (também no Controle). Para voltar um registro antigo (a pessoa volta a concorrer e, se estava confirmado, o prêmio volta para a fila), use a lixeira na linha do histórico. Ausentes não devolvem o prêmio.
-- Perdeu os dados do navegador: Evento → **Restaurar backup**.
+- Perdeu os dados do navegador: Evento → **Restaurar backup**. Antes de restaurar ou zerar, o app baixa sozinho uma cópia do estado atual (`backup-antes-de-...json`).
+- Apareceu a tela "Opa, algo deu errado": use **Tentar de novo** ou **Voltar ao início do sorteio**; os dados salvos não são apagados.
+- Se o app avisar que não consegue salvar (bolinha vermelha no telão, aviso no Controle), o **sorteio fica bloqueado** até voltar a salvar: remova imagens grandes ou baixe um backup.
 
 ## Limitações conhecidas
 
-- Os dados ficam no navegador (`localStorage`, cerca de 5 MB). As imagens dos prêmios são reduzidas automaticamente (até 640 px). O app avisa quando o espaço passa de 80%.
+- Os dados ficam no navegador (`localStorage`, cerca de 5 MB). As imagens dos prêmios são reduzidas automaticamente (até 1280 px, em WebP, com teto de tamanho por imagem). O app avisa quando o espaço passa de 80%.
 - Só **uma janela do palco** pode estar aberta: se outra gravar nos mesmos dados, o palco avisa e trava até recarregar.
 - Uma janela de Controle por palco. Se o palco recarregar, o Controle reconecta sozinho em poucos segundos.
 - Feito para notebook + telão 16:9, não para celular.

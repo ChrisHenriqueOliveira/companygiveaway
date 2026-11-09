@@ -1,6 +1,7 @@
 import { Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { normalizeEmail } from '../domain/email';
+import { foldText } from '../domain/text';
 import { useActions } from '../store/actions';
 import { useAppStore } from '../store/appStore';
 import { Avatar, Badge, Button, Card, EmptyState } from '../ui';
@@ -18,8 +19,8 @@ export function ExclusionsTab() {
     return participants.filter((p) => emails.has(normalizeEmail(p.email))).length;
   }, [excluded, participants]);
 
-  const q = query.trim().toLowerCase();
-  const shown = q ? excluded.filter((p) => p.name.toLowerCase().includes(q) || p.email.includes(q)) : excluded;
+  const q = foldText(query.trim());
+  const shown = q ? excluded.filter((p) => foldText(p.name).includes(q) || foldText(p.email).includes(q)) : excluded;
 
   return (
     <div className="flex flex-col gap-6">

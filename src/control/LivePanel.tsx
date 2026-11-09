@@ -1,10 +1,11 @@
 import { Undo2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { currentDraw, eligibleParticipants, pendingQueue } from '../domain/engine';
+import { useEffect, useMemo, useState } from 'react';
+import { undoMessage } from '../backstage/messages';
+import { currentDraw, eligibleParticipants, lastDraw, pendingQueue } from '../domain/engine';
 import { deriveScreen, type StageScreen } from '../stage/deriveScreen';
 import { pacing } from '../stage/pacing';
 import { useActions } from '../store/actions';
-import { selectActiveStage, useAppStore } from '../store/appStore';
+import { selectActiveStage, selectUndoView, useAppStore } from '../store/appStore';
 import { useCanUndo, useView } from '../store/hooks';
 import { Avatar, Badge, Button, Card, ConfirmDialog } from '../ui';
 import { PrizeImage } from '../ui/PrizeImage';
@@ -38,6 +39,7 @@ export function LivePanel() {
   const view = useView();
   const canUndo = useCanUndo();
   const [asking, setAsking] = useState(false);
+  const [askAbsent, setAskAbsent] = useState(false);
 
   const phase = deriveScreen(state);
   const stage = selectActiveStage(state);
@@ -50,6 +52,7 @@ export function LivePanel() {
   const next = upcoming[0] ? state.prizes[upcoming[0]] : undefined;
   const nextImage = next?.imageId ? state.images[next.imageId] : undefined;
   const eligible = eligibleParticipants(view).length;
+  const undoTarget = useMemo(() => lastDraw(selectUndoView(state)), [state.draws, state.rehearsal]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -91,6 +94,11 @@ export function LivePanel() {
               Sortear!
             </Button>
           )}
+          {phase === 'prizeReveal' && (
+            <Button variant="ghost" onClick={() => actions.stageBackToIdle()}>
+              Cancelar e voltar ao início
+            </Button>
+          )}
           {phase === 'drawing' && (
             <Button size="lg" disabled>
               Sorteando…
@@ -101,7 +109,7 @@ export function LivePanel() {
               <Button size="lg" disabled={!ready} onClick={() => actions.stageConfirm()}>
                 Confirmar
               </Button>
-              <Button size="lg" variant="danger" disabled={!ready} onClick={() => actions.stageAbsent()}>
+              <Button size="lg" variant="danger" disabled={!ready} onClick={() => setAskAbsent(true)}>
                 Ausente — ressortear
               </Button>
             </>
@@ -114,6 +122,9 @@ export function LivePanel() {
           <Button variant="warning" icon={<Undo2 size={18} strokeWidth={3} />} disabled={!canUndo} onClick={() => setAsking(true)}>
             Desfazer último
           </Button>
+          <p className="text-xs font-bold text-wolf">
+            As teclas → e PageDown do passador de slides também avançam o sorteio com esta janela em foco.
+          </p>
         </div>
       </Card>
 
@@ -134,9 +145,25 @@ export function LivePanel() {
       </Card>
 
       <ConfirmDialog
+        open={askAbsent}
+        title="Marcar como ausente?"
+        message={
+          draw
+            ? `${draw.name} sai do sorteio e será sorteada outra pessoa para “${draw.prizeName}”. (Dá para recolocar ${draw.name} pelo Histórico.)`
+            : 'Sortear outra pessoa para este prêmio?'
+        }
+        confirmLabel="Sim, ausente"
+        danger
+        onCancel={() => setAskAbsent(false)}
+        onConfirm={() => {
+          actions.stageAbsent();
+          setAskAbsent(false);
+        }}
+      />
+      <ConfirmDialog
         open={asking}
         title="Desfazer último sorteio"
-        message="O registro mais recente será apagado. Se o prêmio foi confirmado, ele volta para o topo da fila e a pessoa volta a concorrer."
+        message={undoMessage(undoTarget)}
         confirmLabel="Desfazer"
         danger
         onCancel={() => setAsking(false)}

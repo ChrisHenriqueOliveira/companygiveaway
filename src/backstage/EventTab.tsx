@@ -1,6 +1,6 @@
 import { Download, Trash2, Upload } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { downloadText, todayStamp } from '../io/download';
+import { downloadText, timeStamp } from '../io/download';
 import { parseBackup, serializeBackup } from '../io/backup';
 import { useActions } from '../store/actions';
 import { useAppStore } from '../store/appStore';
@@ -35,14 +35,26 @@ export function EventTab() {
   };
 
   const backup = () => {
-    const s = useAppStore.getState();
-    downloadText(`backup-sorteio-${todayStamp()}.json`, serializeBackup(s));
+    downloadText(`backup-sorteio-${timeStamp()}.json`, serializeBackup(useAppStore.getState()));
     toast('Backup baixado! Guarde esse arquivo.', 'success');
   };
 
+  /** Cópia automática do que está no app agora, antes de qualquer ação que substitui ou apaga tudo. */
+  const snapshotBefore = (what: 'restaurar' | 'zerar') =>
+    downloadText(`backup-antes-de-${what}-${timeStamp()}.json`, serializeBackup(useAppStore.getState()));
+
   const onBackupFile = async (file?: File) => {
     if (!file) return;
-    const parsed = parseBackup(await file.text());
+    const text =
+      typeof file.text === 'function'
+        ? await file.text()
+        : await new Promise<string>((resolve, reject) => {
+            const r = new FileReader();
+            r.onload = () => resolve(String(r.result));
+            r.onerror = () => reject(r.error);
+            r.readAsText(file);
+          });
+    const parsed = parseBackup(text);
     if (!parsed.ok) {
       toast(parsed.error, 'error');
       return;
@@ -155,12 +167,19 @@ export function EventTab() {
       <ConfirmDialog
         open={!!pendingBackup}
         title="Restaurar backup"
-        message="Tudo o que está no app agora será substituído pelo conteúdo do backup."
+        message={
+          pendingBackup
+            ? `O arquivo tem ${Object.keys(pendingBackup.prizes).length} prêmios, ${pendingBackup.participants.length} participantes, ${pendingBackup.excluded.length} exclusões e ${pendingBackup.draws.length} sorteios. Tudo o que está no app agora será substituído (uma cópia do estado atual é baixada antes, automaticamente).`
+            : ''
+        }
         confirmLabel="Restaurar"
         danger
         onCancel={() => setPendingBackup(undefined)}
         onConfirm={() => {
-          if (pendingBackup) actions.restoreBackup(pendingBackup);
+          if (pendingBackup) {
+            snapshotBefore('restaurar');
+            actions.restoreBackup(pendingBackup);
+          }
           setPendingBackup(undefined);
           toast('Backup restaurado!', 'success');
         }}
@@ -168,12 +187,13 @@ export function EventTab() {
       <ConfirmDialog
         open={resetting}
         title="Zerar evento"
-        message="Isso apaga tudo e não pode ser desfeito."
+        message="Isso apaga tudo e não pode ser desfeito. Uma cópia do que está no app agora é baixada automaticamente antes."
         confirmLabel="Zerar tudo"
         requireText="ZERAR"
         danger
         onCancel={() => setResetting(false)}
         onConfirm={() => {
+          snapshotBefore('zerar');
           actions.resetAll();
           setResetting(false);
           toast('Evento zerado.', 'info');

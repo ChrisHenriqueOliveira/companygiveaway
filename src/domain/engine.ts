@@ -102,8 +102,17 @@ export function forcePrize(v: DrawView, prizeId: ID): ViewPatch {
 
 /** Saída segura do mural final / "sem elegíveis": volta ao início sem apagar nenhum sorteio. */
 export function backToIdle(v: DrawView): ViewPatch {
-  if (v.stage.phase === 'finale' || v.stage.phase === 'noEligible') return { stage: { phase: 'idle' } };
+  const { phase } = v.stage;
+  // prizeReveal: nada foi sorteado ainda, então voltar não perde nada.
+  if (phase === 'finale' || phase === 'noEligible' || phase === 'prizeReveal') return { stage: { phase: 'idle' } };
+  // Estado corrompido: a tela do ganhador aponta para um sorteio que não existe mais. Precisa ter saída.
+  if ((phase === 'winnerReveal' || phase === 'drawing') && !currentDraw(v)) return { stage: { phase: 'idle' } };
   return {};
+}
+
+/** O registro que "Desfazer último" apagaria (o mais recente). */
+export function lastDraw(v: Pick<DrawView, 'draws'>): DrawRecord | undefined {
+  return v.draws.length ? v.draws.reduce((a, b) => (b.at >= a.at ? b : a)) : undefined;
 }
 
 export function canUndo(v: DrawView): boolean {

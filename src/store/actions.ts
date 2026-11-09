@@ -22,6 +22,7 @@ export const ACTION_NAMES: readonly ActionName[] = [
   'stageAbsent',
   'stageBackToIdle',
   'stageForcePrize',
+  'stagePrimary',
   'undoLast',
   'removeDraw',
   'restoreBackup',
@@ -42,6 +43,11 @@ export function setActionsProvider(p: () => AppActions): void {
 
 export function resetActionsProvider(): void {
   provider = localActions;
+}
+
+/** Mesmo que useActions, mas para usar dentro de handlers de evento (sempre pega o provider atual). */
+export function getActions(): AppActions {
+  return provider();
 }
 
 export function useActions(): AppActions {

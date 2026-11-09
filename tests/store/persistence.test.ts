@@ -10,7 +10,8 @@ import {
 
 describe('normalizeOnLoad', () => {
   it('turns a reloaded "drawing" into "winnerReveal", keeping the drawId', () => {
-    const d = { ...createEmptyData(), stage: { phase: 'drawing' as const, prizeId: 'p', drawId: 'd' } };
+    const rec = { id: 'd', prizeId: 'p', prizeName: 'P', participantId: 'u', name: 'N', email: 'n@v.com', status: 'pending' as const, at: 1 };
+    const d = { ...createEmptyData(), draws: [rec], stage: { phase: 'drawing' as const, prizeId: 'p', drawId: 'd' } };
     expect(normalizeOnLoad(d).stage).toEqual({ phase: 'winnerReveal', prizeId: 'p', drawId: 'd' });
   });
   it('keeps other phases untouched', () => {

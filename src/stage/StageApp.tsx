@@ -1,6 +1,7 @@
 import { motion } from 'motion/react';
 import { Monitor } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { Presentinho } from '../mascot/Presentinho';
 import { selectActiveStage, useAppStore } from '../store/appStore';
 import { STORAGE_KEY } from '../store/persistence';
 import { useActions } from '../store/actions';
@@ -8,6 +9,7 @@ import { isControlWindowOpen, openControlWindow } from '../sync/openControl';
 import { startOwnerBridge } from '../sync/ownerBridge';
 import { ConfirmDialog, toast, Toaster } from '../ui';
 import { deriveScreen } from './deriveScreen';
+import { FitToScreen } from './FitToScreen';
 import { useStageHotkeys } from './hotkeys';
 import { isStageLocked, lockStage } from './lock';
 import { DrawingScreen } from './screens/DrawingScreen';
@@ -18,6 +20,7 @@ import { PrizeRevealScreen } from './screens/PrizeRevealScreen';
 import { SetupScreen } from './screens/SetupScreen';
 import { WinnerRevealScreen } from './screens/WinnerRevealScreen';
 import { StageBackdrop } from './StageBackdrop';
+import { useWindowSize } from './useWindowSize';
 
 const PRIMARY_GUARD_MS = 600; // clique duplo do passador não pula etapa
 const REDRAW_MESSAGE_MS = 1150;
@@ -25,6 +28,7 @@ const REDRAW_MESSAGE_MS = 1150;
 export function StageApp() {
   const actions = useActions();
   const state = useAppStore();
+  const { h } = useWindowSize();
   const screen = deriveScreen(state);
   const stage = selectActiveStage(state);
   const { eventName, logoImageId } = state.settings;
@@ -49,6 +53,11 @@ export function StageApp() {
 
   const onPrimary = () => {
     if (isStageLocked()) return;
+    // O ganhador precisa estar salvo antes da animação: sem salvar, não sorteia (e avisa quem opera).
+    if ((screen === 'prizeReveal' || screen === 'noEligible') && state.storageError && !state.rehearsal.active) {
+      toast('Sorteio bloqueado: não foi possível salvar. Abra o Controle e veja o aviso.', 'error');
+      return;
+    }
     lockStage(PRIMARY_GUARD_MS);
     switch (screen) {
       case 'idle':
@@ -113,7 +122,12 @@ export function StageApp() {
         </div>
       )}
       {state.storageError && (
-        <div className="relative z-20 bg-cardinal py-1.5 text-center text-lg font-extrabold text-white">{state.storageError}</div>
+        // Só uma bolinha discreta no telão: o texto do erro fica para a janela de Controle (o público não precisa ver).
+        <div
+          aria-label="Não foi possível salvar"
+          title="Não foi possível salvar. Veja o aviso na janela de Controle."
+          className="absolute left-3 top-3 z-20 h-3 w-3 rounded-full bg-cardinal opacity-70"
+        />
       )}
 
       <header className="relative z-10 flex items-center justify-center gap-4 px-8 pt-5">
@@ -124,12 +138,14 @@ export function StageApp() {
       <div className="relative z-10 flex min-h-0 flex-1 items-center justify-center px-[4vw] pb-8">
         {/* Sem animação de saída: o estado do sorteio nunca pode depender de uma animação terminar. */}
         <motion.div
-            key={`${screen}:${stage.prizeId ?? ''}`}
-            className="flex h-full w-full items-center justify-center"
-            initial={{ opacity: 0, scale: 0.96, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 26 }}
-          >
+          key={`${screen}:${stage.prizeId ?? ''}`}
+          className="h-full w-full"
+          initial={{ opacity: 0, scale: 0.96, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 26 }}
+        >
+          {/* O conteúdo se reduz sozinho se não couber (nomes longos, telas de 768p, mural grande). */}
+          <FitToScreen>
             {screen === 'setup' && <SetupScreen onOpenBackstage={openBackstage} />}
             {screen === 'idle' && <IdleScreen onPrimary={onPrimary} />}
             {screen === 'prizeReveal' && <PrizeRevealScreen prizeId={stage.prizeId} onPrimary={onPrimary} />}
@@ -137,26 +153,33 @@ export function StageApp() {
             {screen === 'winnerReveal' && <WinnerRevealScreen onPrimary={onPrimary} onAbsent={onAbsent} />}
             {screen === 'noEligible' && <NoEligibleScreen onPrimary={onPrimary} onOpenBackstage={openBackstage} />}
             {screen === 'finale' && <FinaleScreen />}
-          </motion.div>
+          </FitToScreen>
+        </motion.div>
       </div>
 
+      {screen === 'winnerReveal' && (
+        <div className="pointer-events-none absolute bottom-6 left-[3vw] z-10 hidden xl:block">
+          <Presentinho mood="celebrate" size={Math.round(Math.min(h * 0.2, 190))} />
+        </div>
+      )}
+
       {redrawing && (
-          <motion.div
-            key="redraw"
-            className="absolute inset-0 z-30 flex items-center justify-center bg-white/85 backdrop-blur-sm"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+        <motion.div
+          key="redraw"
+          className="absolute inset-0 z-30 flex items-center justify-center bg-white/85 backdrop-blur-sm"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
+          <motion.p
+            initial={{ scale: 0.6, rotate: -4 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ type: 'spring', stiffness: 380, damping: 14 }}
+            className="text-[clamp(2.4rem,6vw,6.5rem)] font-black text-cardinal"
           >
-            <motion.p
-              initial={{ scale: 0.6, rotate: -4 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ type: 'spring', stiffness: 380, damping: 14 }}
-              className="text-[clamp(2.4rem,6vw,6.5rem)] font-black text-cardinal"
-            >
-              Ixi, não veio? Bora de novo!
-            </motion.p>
-          </motion.div>
-        )}
+            Ixi, não veio? Bora de novo!
+          </motion.p>
+        </motion.div>
+      )}
 
       <div className="absolute bottom-4 right-4 z-20 flex gap-2 opacity-30 transition-opacity hover:opacity-100 focus-within:opacity-100">
         <button type="button" aria-label="Abrir bastidores (janela de controle)" title="Bastidores / janela de controle (Ctrl+K)" onClick={openControl} className="rounded-xl p-2 text-wolf hover:bg-polar">

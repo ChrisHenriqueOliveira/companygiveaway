@@ -4,6 +4,7 @@ import { Presentinho } from '../mascot/Presentinho';
 import { useAppStore } from '../store/appStore';
 import { getLinkSnapshot, startMirror, subscribeLink } from '../sync/mirrorBridge';
 import { Badge, Toaster } from '../ui';
+import { useControlHotkeys } from './hotkeys';
 import { LivePanel } from './LivePanel';
 
 export function ControlApp() {
@@ -11,6 +12,7 @@ export function ControlApp() {
   const eventName = useAppStore((s) => s.settings.eventName);
   const storageError = useAppStore((s) => s.storageError);
   const hasOpener = !!window.opener && !window.opener.closed;
+  useControlHotkeys();
 
   useEffect(() => {
     document.title = 'Controle — Sorteio Viceri';

@@ -6,6 +6,7 @@ import { burst } from '../confetti';
 import { GiftBox } from '../GiftBox';
 import { lockStage } from '../lock';
 import { pacing } from '../pacing';
+import { useWindowSize } from '../useWindowSize';
 import { PrizeShowcase } from './PrizeShowcase';
 
 type Step = 'shake' | 'pop' | 'show';
@@ -33,7 +34,8 @@ export function PrizeRevealScreen({ prizeId, onPrimary }: { prizeId?: string; on
     return () => timers.forEach(clearTimeout);
   }, [p.giftPopMs, p.giftShowMs, p.giftReadyMs]);
 
-  const size = Math.round(Math.min(window.innerHeight * 0.5, 440));
+  const { h } = useWindowSize();
+  const size = Math.round(Math.min(h * 0.5, 440));
 
   return (
     <div className="flex flex-col items-center gap-10">

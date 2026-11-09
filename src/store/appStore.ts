@@ -66,6 +66,8 @@ export interface AppActions {
   stageAbsent(): void;
   stageBackToIdle(): void;
   stageForcePrize(prizeId: ID): void;
+  /** O mesmo passo do clicker (próximo → sortear → confirmar), para usar da janela de Controle. */
+  stagePrimary(): void;
   undoLast(): void;
   removeDraw(id: ID): void;
   restoreBackup(d: AppData): void;
@@ -289,12 +291,26 @@ export function createAppStore(opts: { persist: boolean; storage?: StateStorage 
       setRehearsal: (active) => set({ rehearsal: { ...freshRehearsal(), active } }),
 
       stageNext: () => applyPatch(nextPrize(selectView(get()))),
-      stageStartDraw: () => applyPatch(startDraw(selectView(get()), Date.now())),
+      stageStartDraw: () => {
+        const s = get();
+        // O ganhador precisa estar salvo antes da animação (F5 volta ao mesmo ganhador). Sem salvar, não sorteia.
+        // No ensaio nada é gravado, então não depende do armazenamento.
+        if (!s.rehearsal.active && s.storageError) return;
+        applyPatch(startDraw(selectView(s), Date.now()));
+      },
       stageFinishDrawing: () => applyPatch(finishDrawing(selectView(get()))),
       stageConfirm: () => applyPatch(confirmWinner(selectView(get()))),
       stageAbsent: () => applyPatch(markAbsentAndRedraw(selectView(get()), Date.now())),
       stageBackToIdle: () => applyPatch(backToIdle(selectView(get()))),
       stageForcePrize: (prizeId) => applyPatch(forcePrize(selectView(get()), prizeId)),
+      stagePrimary: () => {
+        const s = get();
+        if (s.participants.length === 0 || Object.keys(s.prizes).length === 0) return; // tela "setup": não faz nada
+        const phase = selectActiveStage(s).phase;
+        if (phase === 'idle') s.stageNext();
+        else if (phase === 'prizeReveal' || phase === 'noEligible') s.stageStartDraw();
+        else if (phase === 'winnerReveal') s.stageConfirm();
+      },
       undoLast: () => {
         const s = get();
         if (s.rehearsal.active) {

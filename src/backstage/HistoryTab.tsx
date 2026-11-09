@@ -1,6 +1,7 @@
 import { FileDown, Trash2, Undo2 } from 'lucide-react';
 import { useState } from 'react';
-import { eligibleParticipants } from '../domain/engine';
+import { eligibleParticipants, lastDraw } from '../domain/engine';
+import { undoMessage } from './messages';
 import { exportHistoryXlsx } from '../io/sheetExport';
 import { useActions } from '../store/actions';
 import { useAppStore } from '../store/appStore';
@@ -22,6 +23,7 @@ export function HistoryTab() {
 
   const shown = [...(rehearsal.active ? rehearsal.draws : realDraws)].sort((a, b) => b.at - a.at);
   const eligible = eligibleParticipants(view).length;
+  const undoTarget = lastDraw({ draws: rehearsal.active ? rehearsal.draws : realDraws });
 
   const exportXlsx = () => {
     exportHistoryXlsx(realDraws, eventName);
@@ -106,7 +108,7 @@ export function HistoryTab() {
       <ConfirmDialog
         open={asking}
         title="Desfazer último sorteio"
-        message="O registro mais recente será apagado. Se o prêmio foi confirmado, ele volta para o topo da fila e a pessoa volta a concorrer."
+        message={undoMessage(undoTarget)}
         confirmLabel="Desfazer"
         danger
         onCancel={() => setAsking(false)}

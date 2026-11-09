@@ -38,8 +38,8 @@ describe('backToIdle', () => {
   });
 
   it('does nothing in any other phase', () => {
-    for (const phase of ['idle', 'prizeReveal', 'drawing', 'winnerReveal'] as const) {
-      expect(backToIdle(view({ stage: { phase, prizeId: 'z1' } }))).toEqual({});
+    for (const phase of ['idle', 'drawing', 'winnerReveal'] as const) {
+      expect(backToIdle(view({ stage: { phase, prizeId: 'z1', drawId: 'd1' }, draws: [{ id: 'd1', prizeId: 'z1', prizeName: 'Fone', participantId: 'u1', name: 'Ana', email: 'ana@v.com', status: 'pending', at: 1 }] }))).toEqual({});
     }
   });
 });

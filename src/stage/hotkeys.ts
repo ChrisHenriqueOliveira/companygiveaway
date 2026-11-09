@@ -33,7 +33,7 @@ export function stageKeyAction(
 
 type Handlers = Partial<Record<Exclude<StageKeyAction, null>, () => void>>;
 
-function isTyping(el: Element | null): boolean {
+export function isTyping(el: Element | null): boolean {
   if (!el) return false;
   const tag = el.tagName;
   return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (el as HTMLElement).isContentEditable;
