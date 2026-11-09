@@ -6,6 +6,7 @@ import {
   confirmWinner,
   finishDrawing,
   markAbsentAndRedraw,
+  forcePrize,
   nextPrize,
   removeDraw as engineRemoveDraw,
   startDraw,
@@ -64,6 +65,7 @@ export interface AppActions {
   stageConfirm(): void;
   stageAbsent(): void;
   stageBackToIdle(): void;
+  stageForcePrize(prizeId: ID): void;
   undoLast(): void;
   removeDraw(id: ID): void;
   restoreBackup(d: AppData): void;
@@ -292,6 +294,7 @@ export function createAppStore(opts: { persist: boolean; storage?: StateStorage 
       stageConfirm: () => applyPatch(confirmWinner(selectView(get()))),
       stageAbsent: () => applyPatch(markAbsentAndRedraw(selectView(get()), Date.now())),
       stageBackToIdle: () => applyPatch(backToIdle(selectView(get()))),
+      stageForcePrize: (prizeId) => applyPatch(forcePrize(selectView(get()), prizeId)),
       undoLast: () => {
         const s = get();
         if (s.rehearsal.active) {
