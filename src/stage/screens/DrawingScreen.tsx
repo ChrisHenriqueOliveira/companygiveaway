@@ -6,18 +6,18 @@ import { useActions } from '../../store/actions';
 import { useAppStore } from '../../store/appStore';
 import { useView } from '../../store/hooks';
 import { Avatar } from '../../ui';
+import { pacing } from '../pacing';
 import { buildReel } from '../reel';
 import { PrizeShowcase } from './PrizeShowcase';
 
 const REEL_LENGTH = 36;
-const SETTLE_MS = 600; // pausa com o ganhador centralizado antes da revelação
 
 export function DrawingScreen() {
   const actions = useActions();
   const view = useView();
   const reduced = useReducedMotion() ?? false;
   const suspense = useAppStore((s) => s.settings.suspenseSeconds);
-  const seconds = reduced ? Math.min(2, suspense) : suspense;
+  const seconds = suspense; // sempre o tempo configurado, mesmo com "reduzir movimento" no sistema
 
   const draw = currentDraw(view);
   // O ganhador já foi decidido e gravado antes da animação; o rolo só encena.
@@ -33,7 +33,7 @@ export function DrawingScreen() {
       actions.stageFinishDrawing();
       return;
     }
-    const t = setTimeout(() => actions.stageFinishDrawing(), seconds * 1000 + SETTLE_MS);
+    const t = setTimeout(() => actions.stageFinishDrawing(), seconds * 1000 + pacing(suspense).settleMs);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

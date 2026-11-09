@@ -48,23 +48,24 @@ body {
   justify-content: center;
   gap: 0.5rem;
   border: 0;
-  border-bottom: 4px solid var(--btn-shadow);
   border-radius: 16px;
   background: var(--btn-bg);
   color: var(--btn-fg);
+  /* A "espessura" 3D é box-shadow (não borda): apertar o botão nunca muda o layout ao redor. */
+  box-shadow: 0 4px 0 var(--btn-shadow);
   font-weight: 800;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   cursor: pointer;
   user-select: none;
-  transition: filter 0.15s;
+  transition: filter 0.15s, transform 0.06s, box-shadow 0.06s;
 }
 .btn-3d:hover:not(:disabled) {
   filter: brightness(1.06);
 }
 .btn-3d:active:not(:disabled) {
   transform: translateY(4px);
-  border-bottom-width: 0;
+  box-shadow: 0 0 0 var(--btn-shadow);
 }
 .btn-3d:disabled {
   --btn-bg: var(--color-swan);
@@ -80,9 +81,41 @@ body {
   --btn-bg: #fff;
   --btn-shadow: var(--color-swan);
   --btn-fg: var(--color-macaw);
-  border: 2px solid var(--color-swan);
-  border-bottom-width: 4px;
+  box-shadow: 0 0 0 2px var(--color-swan), 0 4px 0 2px var(--color-swan);
 }
+.btn-ghost:active:not(:disabled) {
+  box-shadow: 0 0 0 2px var(--color-swan);
+}
+.btn-ghost:disabled {
+  box-shadow: 0 0 0 2px var(--color-swan), 0 4px 0 2px var(--color-swan);
+}
+}
+
+/* Tailwind v4 deixa todo <button> com cursor de seta e sem feedback: padroniza aqui. */
+@layer base {
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  [role='tab'],
+  [role='switch'],
+  [role='radio'],
+  select,
+  summary,
+  label:has(> input[type='file']) {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+  /* Botões que não são .btn-3d (abas, ícones, acordeões) "afundam" um pouco ao clicar. */
+  button:not(.btn-3d) {
+    transition: scale 0.08s, background-color 0.15s, color 0.15s;
+  }
+  button:not(.btn-3d):active:not(:disabled) {
+    scale: 0.94;
+  }
+  label:has(> input[type='file']):active {
+    scale: 0.97;
+  }
 }
 
 /* Slider estilo Duolingo */

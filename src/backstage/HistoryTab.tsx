@@ -1,4 +1,4 @@
-import { FileDown, Undo2 } from 'lucide-react';
+import { FileDown, Trash2, Undo2 } from 'lucide-react';
 import { useState } from 'react';
 import { eligibleParticipants } from '../domain/engine';
 import { exportHistoryXlsx } from '../io/sheetExport';
@@ -18,6 +18,7 @@ export function HistoryTab() {
   const view = useView();
   const canUndo = useCanUndo();
   const [asking, setAsking] = useState(false);
+  const [removing, setRemoving] = useState<string>();
 
   const shown = [...(rehearsal.active ? rehearsal.draws : realDraws)].sort((a, b) => b.at - a.at);
   const eligible = eligibleParticipants(view).length;
@@ -67,12 +68,41 @@ export function HistoryTab() {
                 {d.status === 'absent' && <Badge color="red">🚫 Ausente</Badge>}
                 {d.status === 'pending' && <Badge color="blue">Sorteando…</Badge>}
                 <span className="w-20 text-right text-sm font-extrabold text-wolf">{time(d.at)}</span>
+                <button
+                  type="button"
+                  aria-label={`Remover ${d.name} do histórico`}
+                  title={d.status === 'pending' ? 'Aguarde o fim do sorteio' : 'Remover do histórico'}
+                  disabled={d.status === 'pending'}
+                  onClick={() => setRemoving(d.id)}
+                  className="rounded-lg p-2 text-wolf hover:bg-polar hover:text-cardinal disabled:cursor-not-allowed disabled:opacity-30"
+                >
+                  <Trash2 size={18} strokeWidth={3} />
+                </button>
               </li>
             ))}
           </ol>
         )}
       </Card>
 
+      <ConfirmDialog
+        open={!!removing}
+        title="Remover do histórico"
+        message={(() => {
+          const d = shown.find((x) => x.id === removing);
+          if (!d) return '';
+          return d.status === 'confirmed'
+            ? `${d.name} volta a concorrer e o prêmio “${d.prizeName}” volta para a lista de prêmios (no topo da fila).`
+            : `${d.name} volta a concorrer. O prêmio não volta para a lista, porque a pessoa estava ausente.`;
+        })()}
+        confirmLabel="Remover"
+        danger
+        onCancel={() => setRemoving(undefined)}
+        onConfirm={() => {
+          if (removing) actions.removeDraw(removing);
+          setRemoving(undefined);
+          toast('Registro removido do histórico.', 'info');
+        }}
+      />
       <ConfirmDialog
         open={asking}
         title="Desfazer último sorteio"

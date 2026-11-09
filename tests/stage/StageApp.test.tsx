@@ -6,6 +6,7 @@ import { useAppStore, type AppState } from '../../src/store/appStore';
 import { resetStageLock } from '../../src/stage/lock';
 import { deriveScreen } from '../../src/stage/deriveScreen';
 import { StageApp } from '../../src/stage/StageApp';
+import { openControlWindow } from '../../src/sync/openControl';
 
 // Animações de saída não terminam no jsdom com relógio falso: sem isso a próxima tela nunca monta.
 // O resto do motion continua real; só o AnimatePresence vira passthrough.
@@ -13,6 +14,8 @@ vi.mock('motion/react', async (importOriginal) => ({
   ...(await importOriginal<typeof import('motion/react')>()),
   AnimatePresence: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
+
+vi.mock('../../src/sync/openControl', () => ({ openControlWindow: vi.fn(() => ({})) }));
 
 vi.mock('../../src/stage/confetti', () => ({
   burst: () => undefined,
@@ -32,7 +35,7 @@ function seed(opts: { participants?: number; prizes?: number } = {}) {
   const { participants = 5, prizes = 2 } = opts;
   useAppStore.setState(blank());
   const s = () => useAppStore.getState();
-  s().updateSettings({ suspenseSeconds: 3 });
+  s().updateSettings({ suspenseSeconds: 3, giftSeconds: 2 });
   s().importParticipants(
     Array.from({ length: participants }, (_, i) => ({ name: `Pessoa ${i + 1}`, email: `p${i + 1}@v.com` })),
     'replace',
@@ -85,15 +88,15 @@ describe('StageApp', () => {
 
     key(' ');
     expect(phase()).toBe('prizeReveal');
-    advance(3000);
+    advance(3500);
     snap();
 
     key(' ');
     expect(phase()).toBe('drawing');
-    advance(4500);
+    advance(5200);
     expect(phase()).toBe('winnerReveal');
     expect(useAppStore.getState().draws).toHaveLength(1);
-    advance(2000);
+    advance(3000);
     snap();
 
     key(' ');
@@ -114,10 +117,10 @@ describe('StageApp', () => {
     const before = screen.getByRole('button', { name: /próximo prêmio/i }).outerHTML;
 
     key(' ');
-    advance(3000);
+    advance(3500);
     key(' ');
-    advance(4500);
-    advance(2000);
+    advance(5200);
+    advance(3000);
     key(' '); // confirma o único prêmio
     advance(800);
     expect(phase()).toBe('idle');
@@ -136,10 +139,10 @@ describe('StageApp', () => {
     seed();
     render(<StageApp />);
     key(' ');
-    advance(3000);
+    advance(3500);
     key(' ');
-    advance(4500);
-    advance(2000);
+    advance(5200);
+    advance(3000);
     const first = useAppStore.getState().draws[0];
 
     key('r');
@@ -170,14 +173,14 @@ describe('StageApp', () => {
     expect(document.querySelector('[role="dialog"]')).toBeNull();
   });
 
-  it('Ctrl+K opens the backstage modal and Space no longer advances while it is open', () => {
+  it('Ctrl+K and the backstage buttons open the Controle window, never a modal on the projector', () => {
     seed();
     render(<StageApp />);
     fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
-    advance(500);
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-    key(' ');
-    expect(phase()).toBe('idle');
+    expect(openControlWindow).toHaveBeenCalledTimes(1);
+    fireEvent.click(screen.getByRole('button', { name: /abrir bastidores/i }));
+    expect(openControlWindow).toHaveBeenCalledTimes(2);
+    expect(document.querySelector('[role="dialog"]')).toBeNull();
   });
 
   it('shows the setup screen when there is nothing to draw yet', () => {

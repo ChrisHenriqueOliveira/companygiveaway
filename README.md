@@ -20,7 +20,7 @@ Duas janelas:
 - **Palco**: a janela principal, que vai no telão. Mostra só o momento atual. Nunca mostra a fila de prêmios, quantos faltam nem se o prêmio atual é o último.
 - **Controle**: abre pelo ícone de **monitor** (canto inferior direito do palco). É a janela do operador, com os botões, a fila, o histórico e todos os Bastidores. Arraste essa janela para o notebook e deixe o palco em tela cheia no telão.
 
-Os **Bastidores** (engrenagem no canto inferior esquerdo, ou `Ctrl+K`) têm cinco abas: Prêmios, Participantes, Exclusões, Histórico e Evento.
+Os **Bastidores** abrem sempre na janela de **Controle** (ícone de monitor, ou `Ctrl+K`), nunca no telão. Têm cinco abas: Prêmios, Participantes, Exclusões, Histórico e Evento.
 
 ### Atalhos do palco
 
@@ -33,6 +33,13 @@ Os **Bastidores** (engrenagem no canto inferior esquerdo, ou `Ctrl+K`) têm cinc
 | `Esc` | Fecha o modal |
 
 Os botões "tela preta" dos passadores de slide (`B`, `.`, `W`) e `PageUp` são ignorados de propósito.
+
+### Tempos (aba Evento)
+
+- **Abertura do presente** (2–15 s): quanto tempo a caixa balança antes de abrir e mostrar o prêmio.
+- **Duração do sorteio** (3–15 s): rolo de nomes e ritmo da revelação do ganhador.
+
+Os dois são independentes e valem sempre, mesmo com "reduzir movimento" ligado no sistema.
 
 ### Regras do sorteio
 
@@ -59,12 +66,11 @@ Os botões "tela preta" dos passadores de slide (`B`, `.`, `W`) e `PageUp` são 
 - [ ] Permitir popups para a página, se o navegador bloquear a janela de Controle.
 - [ ] Abrir a janela de Controle **antes** de colocar o palco em tela cheia.
 - [ ] Evitar o botão de "apresentação" do passador de slides: ele costuma enviar `Esc`, que sai da tela cheia (o `F5` já é ignorado pelo palco).
-- [ ] Conferir que o Windows está com **efeitos de animação** ligados (com animações desligadas o suspense vira 2 s).
 - [ ] Combinar com os apresentadores quem avisa que é o último prêmio (o app não mostra isso).
 
 **Se algo der errado:**
 - Fechou a aba ou deu F5 no meio de um sorteio: reabra e o app continua do mesmo ponto.
-- Clicou errado: Histórico → **Desfazer último** (também no Controle).
+- Clicou errado: Histórico → **Desfazer último** (também no Controle). Para voltar um registro antigo (a pessoa volta a concorrer e, se estava confirmado, o prêmio volta para a fila), use a lixeira na linha do histórico. Ausentes não devolvem o prêmio.
 - Perdeu os dados do navegador: Evento → **Restaurar backup**.
 
 ## Limitações conhecidas
@@ -73,4 +79,5 @@ Os botões "tela preta" dos passadores de slide (`B`, `.`, `W`) e `PageUp` são 
 - Só **uma janela do palco** pode estar aberta: se outra gravar nos mesmos dados, o palco avisa e trava até recarregar.
 - Uma janela de Controle por palco. Se o palco recarregar, o Controle reconecta sozinho em poucos segundos.
 - Feito para notebook + telão 16:9, não para celular.
+- O tempo de **suspense** (aba Evento) vale sempre. Se o sistema estiver com "reduzir movimento" ligado, o app só desliga os movimentos decorativos do mascote e do fundo.
 - Os assets visuais (mascote "Presentinho") são originais, inspirados no estilo Duolingo, e não usam marcas do Duolingo.

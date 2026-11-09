@@ -22,6 +22,7 @@ export const ACTION_NAMES: readonly ActionName[] = [
   'stageAbsent',
   'stageBackToIdle',
   'undoLast',
+  'removeDraw',
   'restoreBackup',
   'resetAll',
 ];

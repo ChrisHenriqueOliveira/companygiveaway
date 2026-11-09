@@ -13,6 +13,7 @@ export function EventTab() {
   const actions = useActions();
   const eventName = useAppStore((s) => s.settings.eventName);
   const suspense = useAppStore((s) => s.settings.suspenseSeconds);
+  const giftSecondsSaved = useAppStore((s) => s.settings.giftSeconds);
   const logoId = useAppStore((s) => s.settings.logoImageId);
   const logo = useAppStore((s) => (logoId ? s.images[logoId] : undefined));
   const rehearsal = useAppStore((s) => s.rehearsal.active);
@@ -20,11 +21,13 @@ export function EventTab() {
 
   const [name, setName] = useState(eventName);
   const [secs, setSecs] = useState(suspense);
+  const [gift, setGift] = useState(giftSecondsSaved);
   const [pendingBackup, setPendingBackup] = useState<AppData>();
   const [resetting, setResetting] = useState(false);
 
   useEffect(() => setName(eventName), [eventName]);
   useEffect(() => setSecs(suspense), [suspense]);
+  useEffect(() => setGift(giftSecondsSaved), [giftSecondsSaved]);
 
   const commitName = () => {
     if (name.trim() && name.trim() !== eventName) actions.updateSettings({ eventName: name });
@@ -63,13 +66,26 @@ export function EventTab() {
                 onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
               />
             </Field>
-            <Field label="Duração do suspense">
+            <Field label="Abertura do presente (tempo balançando antes de abrir)">
+              <Slider
+                min={2}
+                max={15}
+                value={gift}
+                suffix="s"
+                label="Abertura do presente"
+                onChange={(v) => {
+                  setGift(v);
+                  actions.updateSettings({ giftSeconds: v });
+                }}
+              />
+            </Field>
+            <Field label="Duração do sorteio (rolo de nomes e revelação do ganhador)">
               <Slider
                 min={3}
                 max={15}
                 value={secs}
                 suffix="s"
-                label="Duração do suspense"
+                label="Duração do sorteio"
                 onChange={(v) => {
                   setSecs(v);
                   actions.updateSettings({ suspenseSeconds: v });

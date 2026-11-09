@@ -43,6 +43,9 @@ export interface StageState {
 export interface Settings {
   eventName: string;
   logoImageId?: ID;
+  /** Quanto o presente balança antes de abrir (2–15 s). */
+  giftSeconds: number;
+  /** Duração do rolo do sorteio (3–15 s). */
   suspenseSeconds: number;
 }
 
@@ -70,6 +73,7 @@ export interface DrawView {
 
 export const DEFAULT_SETTINGS: Settings = {
   eventName: 'Sorteio de Fim de Ano Viceri 2026',
+  giftSeconds: 4,
   suspenseSeconds: 7,
 };
 
