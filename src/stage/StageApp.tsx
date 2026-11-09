@@ -1,13 +1,12 @@
 import { motion } from 'motion/react';
-import { Monitor, Settings } from 'lucide-react';
+import { Monitor } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { BackstagePanel } from '../backstage/BackstagePanel';
 import { selectActiveStage, useAppStore } from '../store/appStore';
 import { STORAGE_KEY } from '../store/persistence';
 import { useActions } from '../store/actions';
 import { openControlWindow } from '../sync/openControl';
 import { startOwnerBridge } from '../sync/ownerBridge';
-import { Modal, Toaster } from '../ui';
+import { toast, Toaster } from '../ui';
 import { deriveScreen } from './deriveScreen';
 import { useStageHotkeys } from './hotkeys';
 import { isStageLocked, lockStage } from './lock';
@@ -31,7 +30,6 @@ export function StageApp() {
   const { eventName, logoImageId } = state.settings;
   const logo = logoImageId ? state.images[logoImageId] : undefined;
 
-  const [backstage, setBackstage] = useState(false);
   const [redrawing, setRedrawing] = useState(false);
   const [conflict, setConflict] = useState(false);
   const redrawTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -74,6 +72,11 @@ export function StageApp() {
     }, REDRAW_MESSAGE_MS);
   };
 
+  /** Bastidores = janela de Controle: nada de configuração ou fila de prêmios aparece no telão. */
+  function openControl() {
+    if (!openControlWindow()) toast('Permita popups para esta página e tente de novo.', 'error');
+  }
+
   const toggleFullscreen = () => {
     if (document.fullscreenElement) void document.exitFullscreen();
     else void document.documentElement.requestFullscreen?.().catch(() => undefined);
@@ -86,12 +89,11 @@ export function StageApp() {
           primary: onPrimary,
           absent: onAbsent,
           fullscreen: toggleFullscreen,
-          backstage: () => setBackstage((o) => !o),
-          close: () => setBackstage(false),
+          backstage: openControl,
         },
   );
 
-  const openBackstage = () => setBackstage(true);
+  const openBackstage = openControl;
 
   return (
     <main data-screen={screen} className="relative flex h-screen w-screen select-none flex-col overflow-hidden bg-white">
@@ -148,20 +150,12 @@ export function StageApp() {
           </motion.div>
         )}
 
-      <div className="absolute bottom-4 left-4 z-20 flex gap-2 opacity-30 transition-opacity hover:opacity-100 focus-within:opacity-100">
-        <button type="button" aria-label="Abrir bastidores" title="Bastidores (Ctrl+K)" onClick={openBackstage} className="rounded-xl p-2 text-wolf hover:bg-polar">
-          <Settings size={22} strokeWidth={2.5} />
-        </button>
-      </div>
       <div className="absolute bottom-4 right-4 z-20 flex gap-2 opacity-30 transition-opacity hover:opacity-100 focus-within:opacity-100">
-        <button type="button" aria-label="Abrir janela de controle" title="Janela de controle" onClick={() => openControlWindow()} className="rounded-xl p-2 text-wolf hover:bg-polar">
+        <button type="button" aria-label="Abrir bastidores (janela de controle)" title="Bastidores / janela de controle (Ctrl+K)" onClick={openControl} className="rounded-xl p-2 text-wolf hover:bg-polar">
           <Monitor size={22} strokeWidth={2.5} />
         </button>
       </div>
 
-      <Modal open={backstage} onClose={() => setBackstage(false)} title="Bastidores" size="full">
-        <BackstagePanel />
-      </Modal>
       <Toaster />
 
       {conflict && (

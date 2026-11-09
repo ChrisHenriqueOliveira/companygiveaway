@@ -75,6 +75,18 @@ export function markAbsentAndRedraw(v: DrawView, now: number, pick: Pick1 = pick
   return { draws, ...next };
 }
 
+/**
+ * Remove um registro do histórico. A pessoa volta a concorrer; se o registro era CONFIRMADO o prêmio
+ * volta para o topo da fila, se era AUSENTE o prêmio não muda (ele já tinha sido sorteado de novo).
+ */
+export function removeDraw(v: DrawView, drawId: ID): ViewPatch {
+  const d = v.draws.find((x) => x.id === drawId);
+  if (!d || d.status === 'pending' || v.stage.drawId === drawId) return {};
+  const draws = v.draws.filter((x) => x.id !== drawId);
+  const restore = d.status === 'confirmed' && v.prizes[d.prizeId] && !v.queue.includes(d.prizeId);
+  return restore ? { draws, queue: [d.prizeId, ...v.queue] } : { draws };
+}
+
 /** Saída segura do mural final / "sem elegíveis": volta ao início sem apagar nenhum sorteio. */
 export function backToIdle(v: DrawView): ViewPatch {
   if (v.stage.phase === 'finale' || v.stage.phase === 'noEligible') return { stage: { phase: 'idle' } };

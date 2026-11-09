@@ -1,4 +1,8 @@
-async function loadBitmap(file: File): Promise<{ source: CanvasImageSource; width: number; height: number; close: () => void }> {
+import { encodeWithinBudget } from './imageLadder';
+
+type Loaded = { source: CanvasImageSource; width: number; height: number; close: () => void };
+
+async function loadBitmap(file: File): Promise<Loaded> {
   try {
     const bmp = await createImageBitmap(file);
     return { source: bmp, width: bmp.width, height: bmp.height, close: () => bmp.close() };
@@ -13,16 +17,15 @@ async function loadBitmap(file: File): Promise<{ source: CanvasImageSource; widt
     });
     return {
       source: img,
-      width: img.naturalWidth || 640,
-      height: img.naturalHeight || 640,
+      width: img.naturalWidth || 1280,
+      height: img.naturalHeight || 1280,
       close: () => URL.revokeObjectURL(url),
     };
   }
 }
 
-/** Redimensiona (máx. maxSide) e comprime para WebP (fallback JPEG). Mantém o localStorage leve. */
-export async function compressImage(file: File, maxSide = 640, quality = 0.8): Promise<string> {
-  const img = await loadBitmap(file);
+function encode(img: Loaded, maxSide: number, quality: number): string {
+  // Nunca amplia: imagem pequena fica no tamanho original.
   const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
   const w = Math.max(1, Math.round(img.width * scale));
   const h = Math.max(1, Math.round(img.height * scale));
@@ -31,8 +34,9 @@ export async function compressImage(file: File, maxSide = 640, quality = 0.8): P
   canvas.height = h;
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Canvas indisponível.');
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
   ctx.drawImage(img.source, 0, 0, w, h);
-  img.close();
   let url = canvas.toDataURL('image/webp', quality);
   if (!url.startsWith('data:image/webp')) {
     ctx.globalCompositeOperation = 'destination-over';
@@ -41,4 +45,14 @@ export async function compressImage(file: File, maxSide = 640, quality = 0.8): P
     url = canvas.toDataURL('image/jpeg', quality);
   }
   return url;
+}
+
+/** Alta resolução (até 1280 px) em WebP, descendo a qualidade só se passar do teto de armazenamento. */
+export async function compressImage(file: File): Promise<string> {
+  const img = await loadBitmap(file);
+  try {
+    return encodeWithinBudget((side, quality) => encode(img, side, quality));
+  } finally {
+    img.close();
+  }
 }

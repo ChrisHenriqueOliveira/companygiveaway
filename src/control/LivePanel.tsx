@@ -2,6 +2,7 @@ import { Undo2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { currentDraw, eligibleParticipants, pendingQueue } from '../domain/engine';
 import { deriveScreen, type StageScreen } from '../stage/deriveScreen';
+import { pacing } from '../stage/pacing';
 import { useActions } from '../store/actions';
 import { selectActiveStage, useAppStore } from '../store/appStore';
 import { useCanUndo, useView } from '../store/hooks';
@@ -19,10 +20,11 @@ const LABEL: Record<StageScreen, string> = {
 };
 
 /** Segura os botões enquanto a animação do palco roda (o palco faz o mesmo no atalho de teclado). */
-function useReady(phase: StageScreen): boolean {
+function useReady(phase: StageScreen, suspense: number, gift: number): boolean {
   const [ready, setReady] = useState(true);
   useEffect(() => {
-    const ms = phase === 'prizeReveal' ? 2400 : phase === 'winnerReveal' ? 1300 : 500;
+    const p = pacing(suspense, gift);
+    const ms = phase === 'prizeReveal' ? p.giftReadyMs : phase === 'winnerReveal' ? p.winnerLockMs : 500;
     setReady(false);
     const t = setTimeout(() => setReady(true), ms);
     return () => clearTimeout(t);
@@ -39,7 +41,7 @@ export function LivePanel() {
 
   const phase = deriveScreen(state);
   const stage = selectActiveStage(state);
-  const ready = useReady(phase);
+  const ready = useReady(phase, state.settings.suspenseSeconds, state.settings.giftSeconds);
 
   const draw = currentDraw(view);
   const prize = stage.prizeId ? state.prizes[stage.prizeId] : undefined;

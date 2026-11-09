@@ -34,7 +34,7 @@ afterEach(() => {
   resetActionsProvider();
 });
 
-const settle = () => act(() => void vi.advanceTimersByTime(2600));
+const settle = () => act(() => void vi.advanceTimersByTime(6000));
 
 describe('LivePanel buttons send plain commands to the stage', () => {
   it('"Próximo prêmio" sends stageNext with NO arguments (a click event cannot be postMessage-d)', () => {

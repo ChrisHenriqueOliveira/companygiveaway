@@ -1,4 +1,4 @@
-import { Ban, FileUp, Trash2 } from 'lucide-react';
+import { Ban, FileUp, Trash2, UserCheck } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { normalizeEmail } from '../domain/email';
 import { useActions } from '../store/actions';
@@ -26,8 +26,14 @@ export function ParticipantsTab() {
   const exclude = (id: string) => {
     const p = participants.find((x) => x.id === id);
     if (!p) return;
-    actions.addExcluded({ name: p.name, email: p.email });
-    toast(`${p.name} não será sorteado(a).`, 'info');
+    const entry = excluded.find((e) => normalizeEmail(e.email) === normalizeEmail(p.email));
+    if (entry) {
+      actions.removeExcluded(entry.id);
+      toast(`${p.name} voltou a concorrer.`, 'success');
+    } else {
+      actions.addExcluded({ name: p.name, email: p.email });
+      toast(`${p.name} não será sorteado(a).`, 'info');
+    }
   };
 
   return (
@@ -66,13 +72,12 @@ export function ParticipantsTab() {
                   {isExcluded && <Badge color="purple">Excluído</Badge>}
                   <button
                     type="button"
-                    aria-label={`Excluir ${p.name} do sorteio`}
-                    title="Excluir do sorteio"
-                    disabled={isExcluded}
+                    aria-label={isExcluded ? `Voltar ${p.name} ao sorteio` : `Excluir ${p.name} do sorteio`}
+                    title={isExcluded ? 'Voltar ao sorteio' : 'Excluir do sorteio'}
                     onClick={() => exclude(p.id)}
-                    className="rounded-lg p-2 text-wolf hover:bg-polar hover:text-fox disabled:cursor-not-allowed disabled:opacity-30"
+                    className={`rounded-lg p-2 hover:bg-polar ${isExcluded ? 'text-feather-dark' : 'text-wolf hover:text-fox'}`}
                   >
-                    <Ban size={18} strokeWidth={3} />
+                    {isExcluded ? <UserCheck size={18} strokeWidth={3} /> : <Ban size={18} strokeWidth={3} />}
                   </button>
                   <button
                     type="button"

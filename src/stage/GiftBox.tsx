@@ -11,7 +11,7 @@ export function GiftBox({ size = 320, shaking, popped }: { size?: number; shakin
       aria-label="Caixa de presente"
       style={{ transformBox: 'fill-box', transformOrigin: '50% 100%' }}
       animate={shaking ? { rotate: [0, -7, 7, -7, 7, -4, 4, 0], y: [0, -6, 0, -6, 0] } : { rotate: 0, scale: popped ? [1, 1.08, 1] : 1 }}
-      transition={shaking ? { duration: 1.2, ease: 'easeInOut' } : { duration: 0.4 }}
+      transition={shaking ? { duration: 1.1, ease: 'easeInOut', repeat: Infinity } : { duration: 0.4 }}
     >
       <ellipse cx="120" cy="238" rx="86" ry="9" fill="#000" opacity="0.08" />
       <rect x="34" y="112" width="172" height="124" rx="16" fill="#1899D6" />

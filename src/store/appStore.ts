@@ -7,6 +7,7 @@ import {
   finishDrawing,
   markAbsentAndRedraw,
   nextPrize,
+  removeDraw as engineRemoveDraw,
   startDraw,
   undoLast,
   type ViewPatch,
@@ -64,6 +65,7 @@ export interface AppActions {
   stageAbsent(): void;
   stageBackToIdle(): void;
   undoLast(): void;
+  removeDraw(id: ID): void;
   restoreBackup(d: AppData): void;
   resetAll(): void;
 }
@@ -265,6 +267,9 @@ export function createAppStore(opts: { persist: boolean; storage?: StateStorage 
         const s = get();
         const settings = { ...s.settings };
         if (patch.eventName !== undefined && patch.eventName.trim()) settings.eventName = patch.eventName.trim();
+        if (patch.giftSeconds !== undefined) {
+          settings.giftSeconds = Math.min(15, Math.max(2, Math.round(patch.giftSeconds)));
+        }
         if (patch.suspenseSeconds !== undefined) {
           settings.suspenseSeconds = Math.min(15, Math.max(3, Math.round(patch.suspenseSeconds)));
         }
@@ -297,6 +302,18 @@ export function createAppStore(opts: { persist: boolean; storage?: StateStorage 
           return;
         }
         applyPatch(undoLast(selectView(s)));
+      },
+
+      removeDraw: (id) => {
+        const s = get();
+        if (s.rehearsal.active) {
+          // No ensaio só os sorteios de teste podem ser removidos; a fila real nunca muda.
+          if (!s.rehearsal.draws.some((d) => d.id === id)) return;
+          const patch = engineRemoveDraw(selectUndoView(s), id);
+          if (patch.draws) set({ rehearsal: { ...s.rehearsal, draws: patch.draws } });
+          return;
+        }
+        applyPatch(engineRemoveDraw(selectView(s), id));
       },
 
       restoreBackup: (d) =>
