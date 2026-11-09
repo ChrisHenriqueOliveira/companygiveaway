@@ -13,24 +13,25 @@ export function normalizeOnLoad(d: AppData): AppData {
 
 const isObj = (x: unknown): x is Record<string, unknown> => typeof x === 'object' && x !== null && !Array.isArray(x);
 
+export function isAppDataShape(raw: unknown): raw is AppData {
+  return (
+    isObj(raw) &&
+    raw.version === 1 &&
+    isObj(raw.prizes) &&
+    isObj(raw.images) &&
+    Array.isArray(raw.queue) &&
+    Array.isArray(raw.participants) &&
+    Array.isArray(raw.excluded) &&
+    Array.isArray(raw.draws) &&
+    isObj(raw.settings) &&
+    isObj(raw.stage)
+  );
+}
+
 /** Valida a forma básica; qualquer coisa desconhecida vira dados vazios. */
 export function migrate(raw: unknown): AppData {
-  if (
-    !isObj(raw) ||
-    raw.version !== 1 ||
-    !isObj(raw.prizes) ||
-    !isObj(raw.images) ||
-    !Array.isArray(raw.queue) ||
-    !Array.isArray(raw.participants) ||
-    !Array.isArray(raw.excluded) ||
-    !Array.isArray(raw.draws) ||
-    !isObj(raw.settings) ||
-    !isObj(raw.stage)
-  ) {
-    return createEmptyData();
-  }
-  const data = raw as unknown as AppData;
-  return { ...data, settings: { ...DEFAULT_SETTINGS, ...data.settings } };
+  if (!isAppDataShape(raw)) return createEmptyData();
+  return { ...raw, settings: { ...DEFAULT_SETTINGS, ...raw.settings } };
 }
 
 export function estimateUsage(d: AppData): { chars: number; ratio: number } {
