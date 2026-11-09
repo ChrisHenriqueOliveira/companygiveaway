@@ -9,7 +9,7 @@ import {
 } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { ChevronDown, GripVertical, Minus, Pencil, Plus, Shuffle, Trash2 } from 'lucide-react';
+import { ChevronDown, GripVertical, Minus, MonitorPlay, Pencil, Plus, Shuffle, Trash2 } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import type { ID, Prize } from '../domain/types';
 import { selectActiveStage, useAppStore } from '../store/appStore';
@@ -26,6 +26,8 @@ function PrizeRow({
   index,
   image,
   inStage,
+  canForce,
+  onForce,
   onEdit,
   onDelete,
 }: {
@@ -33,6 +35,8 @@ function PrizeRow({
   index: number;
   image?: string;
   inStage: boolean;
+  canForce: boolean;
+  onForce: () => void;
   onEdit: () => void;
   onDelete: () => void;
 }) {
@@ -59,6 +63,17 @@ function PrizeRow({
       <span className="min-w-0 flex-1 truncate text-lg font-extrabold text-eel">{prize.name}</span>
       {prize.groupSize && prize.groupSize > 1 && <Badge color="purple">{`${prize.groupIndex}/${prize.groupSize}`}</Badge>}
       {inStage && <Badge color="yellow">No palco</Badge>}
+      {canForce && (
+        <button
+          type="button"
+          aria-label={`Mandar ${prize.name} para o palco`}
+          title="Mandar para o palco agora"
+          onClick={onForce}
+          className="rounded-lg p-2 text-wolf hover:bg-polar hover:text-feather-dark"
+        >
+          <MonitorPlay size={18} strokeWidth={3} />
+        </button>
+      )}
       <button type="button" aria-label={`Editar ${prize.name}`} onClick={onEdit} className="rounded-lg p-2 text-wolf hover:bg-polar hover:text-macaw">
         <Pencil size={18} strokeWidth={3} />
       </button>
@@ -109,6 +124,7 @@ export function PrizesTab() {
   const images = useAppStore((s) => s.images);
   const draws = useAppStore((s) => s.draws);
   const stage = useAppStore(selectActiveStage);
+  const rehearsal = useAppStore((s) => s.rehearsal);
   const usage = useUsage();
 
   const [name, setName] = useState('');
@@ -119,6 +135,17 @@ export function PrizesTab() {
   const [deleting, setDeleting] = useState<ID>();
   const [shuffleAsk, setShuffleAsk] = useState(false);
   const [doneOpen, setDoneOpen] = useState(false);
+  const [forcing, setForcing] = useState<ID>();
+
+  // Há um ganhador sorteado/na tela que ainda não foi confirmado? Trocar o prêmio descarta esse sorteio.
+  const hasPendingDraw = (rehearsal.active ? rehearsal.draws : draws).some((d) => d.status === 'pending');
+  const force = (id: ID) => {
+    if (hasPendingDraw) setForcing(id);
+    else {
+      actions.stageForcePrize(id);
+      toast('Prêmio enviado ao palco!', 'success');
+    }
+  };
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -213,6 +240,8 @@ export function PrizesTab() {
                     index={i}
                     image={prizes[id].imageId ? images[prizes[id].imageId!] : undefined}
                     inStage={id === inStageId}
+                    canForce={!(id === inStageId && stage.phase === 'prizeReveal')}
+                    onForce={() => force(id)}
                     onEdit={() => setEditing(id)}
                     onDelete={() => setDeleting(id)}
                   />
@@ -259,6 +288,18 @@ export function PrizesTab() {
           onClose={() => setEditing(undefined)}
         />
       )}
+      <ConfirmDialog
+        open={!!forcing}
+        title="Mandar para o palco"
+        message={`O sorteio em andamento será descartado: a pessoa já sorteada volta a concorrer. Mandar “${forcing ? prizes[forcing]?.name : ''}” para o palco agora?`}
+        confirmLabel="Mandar para o palco"
+        onCancel={() => setForcing(undefined)}
+        onConfirm={() => {
+          if (forcing) actions.stageForcePrize(forcing);
+          setForcing(undefined);
+          toast('Prêmio enviado ao palco!', 'success');
+        }}
+      />
       <ConfirmDialog
         open={!!deleting}
         title="Excluir prêmio"

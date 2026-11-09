@@ -124,7 +124,7 @@ export function StageApp() {
       <div className="relative z-10 flex min-h-0 flex-1 items-center justify-center px-[4vw] pb-8">
         {/* Sem animação de saída: o estado do sorteio nunca pode depender de uma animação terminar. */}
         <motion.div
-            key={screen}
+            key={`${screen}:${stage.prizeId ?? ''}`}
             className="flex h-full w-full items-center justify-center"
             initial={{ opacity: 0, scale: 0.96, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}

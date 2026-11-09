@@ -85,3 +85,20 @@ describe('LivePanel way back from the final wall / empty pool', () => {
     expect(calls).toEqual([['stageBackToIdle', []]]);
   });
 });
+
+describe('LivePanel holds its buttons again when another prize is forced onto the stage', () => {
+  it('the new gift sequence restarts, so "Sortear!" is locked until it is ready', () => {
+    useAppStore.getState().addPrizes({ name: 'Vale', quantity: 1 });
+    useAppStore.getState().stageNext();
+    render(<LivePanel />);
+    settle();
+    expect(screen.getByRole('button', { name: /sortear!/i })).toBeEnabled();
+
+    const second = useAppStore.getState().queue[1];
+    act(() => useAppStore.getState().stageForcePrize(second));
+    expect(screen.getByRole('button', { name: /sortear!/i })).toBeDisabled();
+
+    settle();
+    expect(screen.getByRole('button', { name: /sortear!/i })).toBeEnabled();
+  });
+});

@@ -87,6 +87,19 @@ export function removeDraw(v: DrawView, drawId: ID): ViewPatch {
   return restore ? { draws, queue: [d.prizeId, ...v.queue] } : { draws };
 }
 
+/**
+ * Manda um prêmio específico da fila para o palco (tela do presente), a qualquer momento: seja o que
+ * estiver na tela, já revelado ou não. O sorteio em andamento (pendente) é descartado e a pessoa volta
+ * a concorrer; a fila não muda.
+ */
+export function forcePrize(v: DrawView, prizeId: ID): ViewPatch {
+  if (!pendingQueue(v).includes(prizeId)) return {};
+  const stage = { phase: 'prizeReveal' as const, prizeId };
+  return v.draws.some((d) => d.status === 'pending')
+    ? { draws: v.draws.filter((d) => d.status !== 'pending'), stage }
+    : { stage };
+}
+
 /** Saída segura do mural final / "sem elegíveis": volta ao início sem apagar nenhum sorteio. */
 export function backToIdle(v: DrawView): ViewPatch {
   if (v.stage.phase === 'finale' || v.stage.phase === 'noEligible') return { stage: { phase: 'idle' } };

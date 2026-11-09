@@ -21,6 +21,7 @@ export const ACTION_NAMES: readonly ActionName[] = [
   'stageConfirm',
   'stageAbsent',
   'stageBackToIdle',
+  'stageForcePrize',
   'undoLast',
   'removeDraw',
   'restoreBackup',
