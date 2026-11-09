@@ -1,11 +1,12 @@
-import { FileDown, Trash2, Undo2 } from 'lucide-react';
+import { FileDown, Printer, Trash2, Undo2 } from 'lucide-react';
+import { printWinners } from '../print/printWinners';
 import { useState } from 'react';
 import { eligibleParticipants, lastDraw } from '../domain/engine';
 import { undoMessage } from './messages';
 import { exportHistoryXlsx } from '../io/sheetExport';
 import { useActions } from '../store/actions';
 import { useAppStore } from '../store/appStore';
-import { useCanUndo, useView } from '../store/hooks';
+import { useCanUndo, useView, useWinners } from '../store/hooks';
 import { Avatar, Badge, Button, Card, ConfirmDialog, EmptyState, toast } from '../ui';
 
 const time = (ms: number) =>
@@ -18,6 +19,7 @@ export function HistoryTab() {
   const eventName = useAppStore((s) => s.settings.eventName);
   const view = useView();
   const canUndo = useCanUndo();
+  const winners = useWinners();
   const [asking, setAsking] = useState(false);
   const [removing, setRemoving] = useState<string>();
 
@@ -46,6 +48,9 @@ export function HistoryTab() {
         <div className="flex gap-3">
           <Button variant="warning" icon={<Undo2 size={18} strokeWidth={3} />} disabled={!canUndo} onClick={() => setAsking(true)}>
             Desfazer último
+          </Button>
+          <Button variant="ghost" icon={<Printer size={18} strokeWidth={3} />} disabled={winners.length === 0} onClick={printWinners}>
+            Imprimir ganhadores
           </Button>
           <Button variant="secondary" icon={<FileDown size={18} strokeWidth={3} />} disabled={realDraws.length === 0} onClick={exportXlsx}>
             Exportar Excel

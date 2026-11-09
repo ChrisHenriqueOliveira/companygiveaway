@@ -1,6 +1,7 @@
 import { useEffect, useSyncExternalStore } from 'react';
 import { BackstagePanel } from '../backstage/BackstagePanel';
 import { Presentinho } from '../mascot/Presentinho';
+import { WinnersPrintSheet } from '../print/WinnersPrintSheet';
 import { useAppStore } from '../store/appStore';
 import { getLinkSnapshot, startMirror, subscribeLink } from '../sync/mirrorBridge';
 import { Badge, Toaster } from '../ui';
@@ -60,6 +61,7 @@ export function ControlApp() {
         </section>
       </main>
       <Toaster />
+      <WinnersPrintSheet />
     </div>
   );
 }

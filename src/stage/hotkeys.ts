@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-export type StageKeyAction = 'primary' | 'absent' | 'fullscreen' | 'backstage' | 'close' | null;
+export type StageKeyAction = 'primary' | 'absent' | 'fullscreen' | 'backstage' | 'close' | 'print' | null;
 
 /**
  * Mapa de teclas do palco. Passadores de slide costumam ter um botão de "tela preta"
@@ -26,6 +26,9 @@ export function stageKeyAction(
     case 'f':
     case 'F':
       return 'fullscreen';
+    case 'p':
+    case 'P':
+      return 'print';
     default:
       return null;
   }

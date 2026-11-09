@@ -29,12 +29,17 @@ Os **Bastidores** abrem sempre na janela de **Controle** (ícone de monitor, ou 
 | `Espaço` / `Enter` / `→` / `PageDown` | Avança (próximo prêmio → sortear → confirmar) |
 | `R` | Ausente: ressortear o mesmo prêmio |
 | `F` | Tela cheia |
+| `P` | No mural final: imprimir / salvar em PDF a folha de ganhadores |
 | `Ctrl+K` | Abre/fecha os Bastidores |
 | `Esc` | Fecha o modal |
 
 No Controle, depois de clicar nele o passador de slides continua funcionando (teclas `→` e `PageDown`). O "Ausente" no Controle pede confirmação com o nome da pessoa.
 
 Os botões "tela preta" dos passadores de slide (`B`, `.`, `W`) e `PageUp` são ignorados de propósito.
+
+### Mural final e folha de ganhadores
+
+No fim, o palco mostra um cartão por ganhador: imagem grande do prêmio, faixa colorida com o nome do prêmio e o ganhador embaixo. Dá para imprimir ou salvar em PDF a **folha de ganhadores** (A4 paisagem, com foto do prêmio, nome, e-mail e uma caixinha "Entregue ☐" com linha de assinatura): tecla `P` no mural, o ícone de impressora no canto, o botão "Imprimir ganhadores" no Controle e no Histórico, ou `Ctrl+P` em qualquer tela. No modo ensaio a folha sai marcada como "Ensaio — não é o resultado oficial".
 
 ### Tempos (aba Evento)
 

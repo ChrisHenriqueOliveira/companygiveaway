@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import type { AppData, DrawView } from '../domain/types';
+import { winnersOf, type WinnerItem } from '../domain/winners';
 import { selectCanUndo, selectView, useAppStore } from './appStore';
 import { estimateUsage } from './persistence';
 
@@ -7,6 +8,18 @@ import { estimateUsage } from './persistence';
 export function useView(): DrawView {
   const s = useAppStore();
   return useMemo(() => selectView(s), [s.queue, s.prizes, s.participants, s.excluded, s.draws, s.stage, s.rehearsal]);
+}
+
+/** Ganhadores confirmados (os do ensaio, se o ensaio estiver ligado), na ordem do sorteio. */
+export function useWinners(): WinnerItem[] {
+  const draws = useAppStore((s) => s.draws);
+  const rehearsal = useAppStore((s) => s.rehearsal);
+  const prizes = useAppStore((s) => s.prizes);
+  const images = useAppStore((s) => s.images);
+  return useMemo(
+    () => winnersOf(rehearsal.active ? rehearsal.draws : draws, prizes, images),
+    [draws, rehearsal, prizes, images],
+  );
 }
 
 export function useCanUndo(): boolean {
