@@ -1,0 +1,115 @@
+@import 'tailwindcss';
+@import '@fontsource/nunito/600.css';
+@import '@fontsource/nunito/700.css';
+@import '@fontsource/nunito/800.css';
+@import '@fontsource/nunito/900.css';
+
+@theme {
+  --font-sans: 'Nunito', system-ui, sans-serif;
+  --color-feather: #58cc02;
+  --color-feather-dark: #58a700;
+  --color-mask: #89e219;
+  --color-macaw: #1cb0f6;
+  --color-macaw-dark: #1899d6;
+  --color-cardinal: #ff4b4b;
+  --color-cardinal-dark: #ea2b2b;
+  --color-bee: #ffc800;
+  --color-bee-dark: #e5b400;
+  --color-fox: #ff9600;
+  --color-beetle: #ce82ff;
+  --color-eel: #4b4b4b;
+  --color-wolf: #777777;
+  --color-swan: #e5e5e5;
+  --color-polar: #f7f7f7;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  color: var(--color-eel);
+  background: #fff;
+}
+
+@layer components {
+/* Botão 3D "gordinho" estilo Duolingo */
+.btn-3d {
+  --btn-bg: var(--color-feather);
+  --btn-shadow: var(--color-feather-dark);
+  --btn-fg: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 0;
+  border-bottom: 4px solid var(--btn-shadow);
+  border-radius: 16px;
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  user-select: none;
+  transition: filter 0.15s;
+}
+.btn-3d:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+.btn-3d:active:not(:disabled) {
+  transform: translateY(4px);
+  border-bottom-width: 0;
+}
+.btn-3d:disabled {
+  --btn-bg: var(--color-swan);
+  --btn-shadow: #cfcfcf;
+  --btn-fg: #afafaf;
+  cursor: not-allowed;
+}
+.btn-feather { --btn-bg: var(--color-feather); --btn-shadow: var(--color-feather-dark); }
+.btn-macaw { --btn-bg: var(--color-macaw); --btn-shadow: var(--color-macaw-dark); }
+.btn-cardinal { --btn-bg: var(--color-cardinal); --btn-shadow: var(--color-cardinal-dark); }
+.btn-bee { --btn-bg: var(--color-bee); --btn-shadow: var(--color-bee-dark); }
+.btn-ghost {
+  --btn-bg: #fff;
+  --btn-shadow: var(--color-swan);
+  --btn-fg: var(--color-macaw);
+  border: 2px solid var(--color-swan);
+  border-bottom-width: 4px;
+}
+}
+
+/* Slider estilo Duolingo */
+.duo-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 14px;
+  border-radius: 999px;
+  background: var(--color-swan);
+  outline: none;
+}
+.duo-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-feather);
+  border: 4px solid #fff;
+  box-shadow: 0 0 0 2px var(--color-feather-dark), 0 4px 0 var(--color-feather-dark);
+  cursor: pointer;
+}
+.duo-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-feather);
+  border: 4px solid #fff;
+  box-shadow: 0 0 0 2px var(--color-feather-dark);
+  cursor: pointer;
+}
