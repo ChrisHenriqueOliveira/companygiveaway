@@ -7,10 +7,11 @@ import { useAppStore } from '../../store/appStore';
 import { useView } from '../../store/hooks';
 import { Avatar } from '../../ui';
 import { pacing } from '../pacing';
-import { buildReel } from '../reel';
+import { buildReelWithMargins } from '../reel';
 import { PrizeShowcase } from './PrizeShowcase';
 
 const REEL_LENGTH = 36;
+const REEL_MARGIN = 2; // cartões extras acima do primeiro e abaixo do ganhador (o rolo nunca "acaba")
 
 export function DrawingScreen() {
   const actions = useActions();
@@ -21,10 +22,15 @@ export function DrawingScreen() {
 
   const draw = currentDraw(view);
   // O ganhador já foi decidido e gravado antes da animação; o rolo só encena.
-  const [reel] = useState(() =>
+  const [{ cards: reel, winnerIndex }] = useState(() =>
     draw
-      ? buildReel(eligibleParticipants(view), { id: draw.participantId, name: draw.name, email: draw.email }, REEL_LENGTH)
-      : [],
+      ? buildReelWithMargins(
+          eligibleParticipants(view),
+          { id: draw.participantId, name: draw.name, email: draw.email },
+          REEL_LENGTH,
+          REEL_MARGIN,
+        )
+      : { cards: [], winnerIndex: 0 },
   );
   const [H] = useState(() => Math.max(84, Math.round(Math.min(window.innerHeight * 0.125, 132))));
 
@@ -38,9 +44,9 @@ export function DrawingScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const N = reel.length;
-  const startY = 2 * H;
-  const endY = -(N - 3) * H;
+  // O cartão do centro fica 2 linhas abaixo do topo da janela. Começa no 1º cartão de verdade e termina no ganhador.
+  const startY = 0;
+  const endY = (2 - winnerIndex) * H;
   const width = Math.min(window.innerWidth * 0.62, 820);
 
   return (
