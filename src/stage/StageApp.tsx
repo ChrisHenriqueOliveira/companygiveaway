@@ -3,6 +3,7 @@ import { Monitor, Settings } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { BackstagePanel } from '../backstage/BackstagePanel';
 import { selectActiveStage, useAppStore } from '../store/appStore';
+import { STORAGE_KEY } from '../store/persistence';
 import { useActions } from '../store/actions';
 import { openControlWindow } from '../sync/openControl';
 import { startOwnerBridge } from '../sync/ownerBridge';
@@ -32,10 +33,20 @@ export function StageApp() {
 
   const [backstage, setBackstage] = useState(false);
   const [redrawing, setRedrawing] = useState(false);
+  const [conflict, setConflict] = useState(false);
   const redrawTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => () => clearTimeout(redrawTimer.current), []);
   useEffect(() => startOwnerBridge(), []); // atende a janela de Controle (se houver)
+
+  // Outra aba/janela do palco gravou no mesmo localStorage: as duas se sobrescreveriam e ganhadores sumiriam.
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY) setConflict(true);
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
 
   const onPrimary = () => {
     if (isStageLocked()) return;
@@ -68,13 +79,17 @@ export function StageApp() {
     else void document.documentElement.requestFullscreen?.().catch(() => undefined);
   };
 
-  useStageHotkeys({
-    primary: onPrimary,
-    absent: onAbsent,
-    fullscreen: toggleFullscreen,
-    backstage: () => setBackstage((o) => !o),
-    close: () => setBackstage(false),
-  });
+  useStageHotkeys(
+    conflict
+      ? {}
+      : {
+          primary: onPrimary,
+          absent: onAbsent,
+          fullscreen: toggleFullscreen,
+          backstage: () => setBackstage((o) => !o),
+          close: () => setBackstage(false),
+        },
+  );
 
   const openBackstage = () => setBackstage(true);
 
@@ -148,6 +163,18 @@ export function StageApp() {
         <BackstagePanel />
       </Modal>
       <Toaster />
+
+      {conflict && (
+        <div role="alertdialog" aria-label="Sorteio aberto em outra janela" className="fixed inset-0 z-[70] flex flex-col items-center justify-center gap-6 bg-white p-10 text-center">
+          <h2 className="text-5xl font-black text-cardinal">Este sorteio já está aberto em outra janela</h2>
+          <p className="max-w-3xl text-2xl font-bold text-wolf">
+            Duas janelas do palco gravando ao mesmo tempo apagariam ganhadores. Feche a outra janela e recarregue esta para continuar com os dados salvos.
+          </p>
+          <button type="button" className="btn-3d btn-feather rounded-[24px] px-12 py-5 text-2xl" onClick={() => location.reload()}>
+            Recarregar com os dados salvos
+          </button>
+        </div>
+      )}
     </main>
   );
 }

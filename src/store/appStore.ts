@@ -1,6 +1,7 @@
 import { create, type StateCreator, type StoreApi, type UseBoundStore } from 'zustand';
 import { createJSONStorage, persist, type StateStorage } from 'zustand/middleware';
 import {
+  backToIdle,
   canUndo,
   confirmWinner,
   finishDrawing,
@@ -61,6 +62,7 @@ export interface AppActions {
   stageFinishDrawing(): void;
   stageConfirm(): void;
   stageAbsent(): void;
+  stageBackToIdle(): void;
   undoLast(): void;
   restoreBackup(d: AppData): void;
   resetAll(): void;
@@ -284,6 +286,7 @@ export function createAppStore(opts: { persist: boolean; storage?: StateStorage 
       stageFinishDrawing: () => applyPatch(finishDrawing(selectView(get()))),
       stageConfirm: () => applyPatch(confirmWinner(selectView(get()))),
       stageAbsent: () => applyPatch(markAbsentAndRedraw(selectView(get()), Date.now())),
+      stageBackToIdle: () => applyPatch(backToIdle(selectView(get()))),
       undoLast: () => {
         const s = get();
         if (s.rehearsal.active) {

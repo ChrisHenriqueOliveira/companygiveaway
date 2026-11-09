@@ -9,6 +9,7 @@ import { LivePanel } from './LivePanel';
 export function ControlApp() {
   const { connected } = useSyncExternalStore(subscribeLink, getLinkSnapshot);
   const eventName = useAppStore((s) => s.settings.eventName);
+  const storageError = useAppStore((s) => s.storageError);
   const hasOpener = !!window.opener && !window.opener.closed;
 
   useEffect(() => {
@@ -28,6 +29,12 @@ export function ControlApp() {
           {connected ? '🟢 Conectado ao palco' : '🔴 Desconectado'}
         </Badge>
       </header>
+
+      {storageError && (
+        <div className="bg-cardinal px-6 py-2 text-center font-extrabold text-white" role="alert">
+          {storageError}
+        </div>
+      )}
 
       {!connected && (
         <div className="bg-cardinal px-6 py-2 text-center font-extrabold text-white" role="alert">

@@ -80,12 +80,12 @@ export function LivePanel() {
 
         <div className="flex flex-col gap-3 pt-1">
           {phase === 'idle' && (
-            <Button size="lg" disabled={!ready} onClick={actions.stageNext}>
+            <Button size="lg" disabled={!ready} onClick={() => actions.stageNext()}>
               Próximo prêmio
             </Button>
           )}
           {(phase === 'prizeReveal' || phase === 'noEligible') && (
-            <Button size="lg" disabled={!ready} onClick={actions.stageStartDraw}>
+            <Button size="lg" disabled={!ready} onClick={() => actions.stageStartDraw()}>
               Sortear!
             </Button>
           )}
@@ -96,13 +96,18 @@ export function LivePanel() {
           )}
           {phase === 'winnerReveal' && (
             <>
-              <Button size="lg" disabled={!ready} onClick={actions.stageConfirm}>
+              <Button size="lg" disabled={!ready} onClick={() => actions.stageConfirm()}>
                 Confirmar
               </Button>
-              <Button size="lg" variant="danger" disabled={!ready} onClick={actions.stageAbsent}>
+              <Button size="lg" variant="danger" disabled={!ready} onClick={() => actions.stageAbsent()}>
                 Ausente — ressortear
               </Button>
             </>
+          )}
+          {(phase === 'finale' || phase === 'noEligible') && (
+            <Button size="lg" variant="secondary" disabled={!ready} onClick={() => actions.stageBackToIdle()}>
+              Voltar ao início
+            </Button>
           )}
           <Button variant="warning" icon={<Undo2 size={18} strokeWidth={3} />} disabled={!canUndo} onClick={() => setAsking(true)}>
             Desfazer último

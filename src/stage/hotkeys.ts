@@ -45,9 +45,15 @@ export function useStageHotkeys(handlers: Handlers): void {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      const typing = isTyping(document.activeElement);
+      // Passadores de slide costumam enviar F5: recarregar tiraria o palco da tela cheia.
+      if (!typing && (e.key === 'F5' || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'r'))) {
+        e.preventDefault();
+        return;
+      }
       if (e.repeat) return;
       const action = stageKeyAction(e, {
-        typing: isTyping(document.activeElement),
+        typing,
         modalOpen: !!document.querySelector('[role="dialog"]'),
       });
       if (!action) return;

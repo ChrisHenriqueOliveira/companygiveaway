@@ -75,6 +75,12 @@ export function markAbsentAndRedraw(v: DrawView, now: number, pick: Pick1 = pick
   return { draws, ...next };
 }
 
+/** Saída segura do mural final / "sem elegíveis": volta ao início sem apagar nenhum sorteio. */
+export function backToIdle(v: DrawView): ViewPatch {
+  if (v.stage.phase === 'finale' || v.stage.phase === 'noEligible') return { stage: { phase: 'idle' } };
+  return {};
+}
+
 export function canUndo(v: DrawView): boolean {
   return (
     v.draws.length > 0 &&

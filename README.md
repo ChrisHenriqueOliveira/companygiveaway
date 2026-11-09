@@ -57,6 +57,9 @@ Os botões "tela preta" dos passadores de slide (`B`, `.`, `W`) e `PageUp` são 
 - [ ] Conferir que o **Modo ensaio está desligado** (sem a faixa amarela no topo).
 - [ ] Usar **tela estendida**: palco em tela cheia (`F`) no telão e Controle no notebook.
 - [ ] Permitir popups para a página, se o navegador bloquear a janela de Controle.
+- [ ] Abrir a janela de Controle **antes** de colocar o palco em tela cheia.
+- [ ] Evitar o botão de "apresentação" do passador de slides: ele costuma enviar `Esc`, que sai da tela cheia (o `F5` já é ignorado pelo palco).
+- [ ] Conferir que o Windows está com **efeitos de animação** ligados (com animações desligadas o suspense vira 2 s).
 - [ ] Combinar com os apresentadores quem avisa que é o último prêmio (o app não mostra isso).
 
 **Se algo der errado:**
@@ -67,6 +70,7 @@ Os botões "tela preta" dos passadores de slide (`B`, `.`, `W`) e `PageUp` são 
 ## Limitações conhecidas
 
 - Os dados ficam no navegador (`localStorage`, cerca de 5 MB). As imagens dos prêmios são reduzidas automaticamente (até 640 px). O app avisa quando o espaço passa de 80%.
+- Só **uma janela do palco** pode estar aberta: se outra gravar nos mesmos dados, o palco avisa e trava até recarregar.
 - Uma janela de Controle por palco. Se o palco recarregar, o Controle reconecta sozinho em poucos segundos.
 - Feito para notebook + telão 16:9, não para celular.
 - Os assets visuais (mascote "Presentinho") são originais, inspirados no estilo Duolingo, e não usam marcas do Duolingo.
