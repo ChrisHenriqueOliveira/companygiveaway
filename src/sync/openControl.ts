@@ -1,5 +1,9 @@
 let control: Window | null = null;
 
+export function isControlWindowOpen(): boolean {
+  return !!control && !control.closed;
+}
+
 /**
  * Abre (ou traz para a frente) a janela de Controle. É o único caminho para os Bastidores:
  * assim nada de configuração ou fila de prêmios aparece no telão. Devolve null se o popup foi bloqueado.

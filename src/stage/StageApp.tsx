@@ -4,9 +4,9 @@ import { useEffect, useRef, useState } from 'react';
 import { selectActiveStage, useAppStore } from '../store/appStore';
 import { STORAGE_KEY } from '../store/persistence';
 import { useActions } from '../store/actions';
-import { openControlWindow } from '../sync/openControl';
+import { isControlWindowOpen, openControlWindow } from '../sync/openControl';
 import { startOwnerBridge } from '../sync/ownerBridge';
-import { toast, Toaster } from '../ui';
+import { ConfirmDialog, toast, Toaster } from '../ui';
 import { deriveScreen } from './deriveScreen';
 import { useStageHotkeys } from './hotkeys';
 import { isStageLocked, lockStage } from './lock';
@@ -32,6 +32,7 @@ export function StageApp() {
 
   const [redrawing, setRedrawing] = useState(false);
   const [conflict, setConflict] = useState(false);
+  const [askControl, setAskControl] = useState(false);
   const redrawTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => () => clearTimeout(redrawTimer.current), []);
@@ -74,6 +75,13 @@ export function StageApp() {
 
   /** Bastidores = janela de Controle: nada de configuração ou fila de prêmios aparece no telão. */
   function openControl() {
+    // Já aberta: só traz para a frente. Senão pergunta antes (um clique sem querer não pode expor nada no telão).
+    if (isControlWindowOpen()) openControlWindow();
+    else setAskControl(true);
+  }
+
+  function confirmOpenControl() {
+    setAskControl(false);
     if (!openControlWindow()) toast('Permita popups para esta página e tente de novo.', 'error');
   }
 
@@ -156,6 +164,20 @@ export function StageApp() {
         </button>
       </div>
 
+      <ConfirmDialog
+        open={askControl}
+        title="Abrir a janela de Controle?"
+        message={
+          <>
+            <b>Ops, certeza que quer abrir isso?</b> O Controle mostra a fila de prêmios e as configurações. Se este telão estiver
+            espelhando a tela, o público vai ver. Só abra se o Controle for ficar no seu notebook.
+          </>
+        }
+        confirmLabel="Sim, abrir o Controle"
+        cancelLabel="Cancelar"
+        onCancel={() => setAskControl(false)}
+        onConfirm={confirmOpenControl}
+      />
       <Toaster />
 
       {conflict && (
