@@ -1,0 +1,15 @@
+import { Presentinho } from '../../mascot/Presentinho';
+import { Button } from '../../ui';
+
+/** Idêntica em qualquer momento: nada aqui pode denunciar quantos prêmios faltam. */
+export function IdleScreen({ onPrimary }: { onPrimary: () => void }) {
+  return (
+    <div className="flex flex-col items-center gap-10 text-center">
+      <Presentinho mood="idle" size={Math.round(Math.min(window.innerHeight * 0.4, 380))} />
+      <h1 className="text-[clamp(2.6rem,5.4vw,5.8rem)] font-black leading-tight text-eel">Quem será o próximo sortudo?</h1>
+      <Button size="xl" onClick={onPrimary}>
+        Próximo prêmio
+      </Button>
+    </div>
+  );
+}
