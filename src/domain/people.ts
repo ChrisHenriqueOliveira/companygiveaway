@@ -1,7 +1,7 @@
 import { isValidEmail, normalizeEmail } from './email';
 import type { Person } from './types';
 
-const PALETTE = ['#58CC02', '#1CB0F6', '#FF4B4B', '#FFC800', '#FF9600', '#CE82FF'];
+const PALETTE = ['#FD4237', '#FF8A3D', '#FFB41F', '#19A7AD', '#8E5BD1', '#FF6B8B'];
 
 export function initials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);

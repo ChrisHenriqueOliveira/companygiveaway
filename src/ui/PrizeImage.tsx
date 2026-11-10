@@ -14,7 +14,7 @@ export function PrizeImage({ src, size = 48, className = '', fit = 'cover' }: { 
   return (
     <span
       aria-hidden="true"
-      className={`inline-flex shrink-0 items-center justify-center rounded-xl bg-[#FFF5CC] text-bee-dark ${className}`}
+      className={`inline-flex shrink-0 items-center justify-center rounded-xl bg-[#FFF3D4] text-bee-dark ${className}`}
       style={{ width: size, height: size }}
     >
       <Gift size={size * 0.5} strokeWidth={2.5} />

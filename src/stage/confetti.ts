@@ -1,6 +1,6 @@
 import confetti from 'canvas-confetti';
 
-const COLORS = ['#58CC02', '#1CB0F6', '#FF4B4B', '#FFC800', '#FF9600', '#CE82FF'];
+const COLORS = ['#FD4237', '#FF8A3D', '#FFB41F', '#FF6B8B', '#19A7AD', '#8E5BD1'];
 const RAIN_X = [0.2, 0.5, 0.8, 0.35, 0.65];
 
 function safe(opts: confetti.Options) {

@@ -35,7 +35,7 @@ export function HistoryTab() {
   return (
     <div className="flex flex-col gap-6">
       {rehearsal.active && (
-        <div className="rounded-2xl border-2 border-bee bg-[#FFF5CC] px-4 py-3 font-extrabold text-fox">
+        <div className="rounded-2xl border-2 border-bee bg-[#FFF3D4] px-4 py-3 font-extrabold text-fox">
           ENSAIO: estes são os sorteios de teste. Eles somem quando o modo ensaio for desligado.
         </div>
       )}

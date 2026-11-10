@@ -46,7 +46,7 @@ export function ImagePicker({ value, onChange, ariaLabel, hint = 'Clique ou arra
         onDragLeave={() => setOver(false)}
         onDrop={onDrop}
         className={`flex h-32 w-full cursor-pointer flex-col items-center justify-center gap-1 overflow-hidden rounded-2xl border-2 border-dashed text-center text-sm font-extrabold transition ${
-          over ? 'border-macaw bg-[#DDF4FF] text-macaw' : 'border-swan bg-polar text-wolf hover:border-macaw hover:text-macaw'
+          over ? 'border-macaw bg-[#DFF5F6] text-macaw' : 'border-swan bg-polar text-wolf hover:border-macaw hover:text-macaw'
         }`}
       >
         <input

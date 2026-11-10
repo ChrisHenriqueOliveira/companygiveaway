@@ -22,7 +22,7 @@ export function Tabs<T extends string>({ tabs, value, onChange }: Props<T>) {
             className={cn(
               'inline-flex items-center gap-2 rounded-2xl border-2 border-b-4 px-4 py-2 text-sm font-extrabold uppercase tracking-wide transition',
               active
-                ? 'border-macaw bg-[#DDF4FF] text-macaw'
+                ? 'border-feather bg-feather-tint text-feather-dark'
                 : 'border-swan bg-white text-wolf hover:bg-polar',
             )}
           >

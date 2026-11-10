@@ -19,7 +19,7 @@ export function Toggle({ checked, onChange, label }: Props) {
       <span
         className={cn(
           'relative h-8 w-14 shrink-0 rounded-full border-b-4 transition-colors',
-          checked ? 'border-feather-dark bg-feather' : 'border-[#cfcfcf] bg-swan',
+          checked ? 'border-feather-dark bg-feather' : 'border-[#DCCFCC] bg-swan',
         )}
       >
         <motion.span

@@ -21,7 +21,7 @@ export function Slider({ min, max, step = 1, value, onChange, suffix = '', label
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
       />
-      <span className="w-16 text-right text-xl font-black text-macaw">
+      <span className="w-16 text-right text-xl font-black text-feather">
         {value}
         {suffix}
       </span>

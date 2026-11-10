@@ -1,4 +1,4 @@
-import { animate, motion, useMotionValue, useReducedMotion, useTransform, useVelocity, type MotionValue } from 'motion/react';
+import { animate, motion, useMotionValue, useTransform, useVelocity, type MotionValue } from 'motion/react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { currentDraw, eligibleParticipants } from '../../domain/engine';
@@ -53,7 +53,6 @@ function ReelCard({ person, index, pos, vel, H }: { person: Person; index: numbe
 export function DrawingScreen() {
   const actions = useActions();
   const view = useView();
-  const reduced = useReducedMotion() ?? false;
   const suspense = useAppStore((s) => s.settings.suspenseSeconds);
   const seconds = suspense; // sempre o tempo configurado, mesmo com "reduzir movimento" no sistema
 
@@ -84,8 +83,8 @@ export function DrawingScreen() {
     }
     let cancelled = false;
     let spring: ReturnType<typeof animate> | undefined;
-    // Fase 1: corre com desaceleração longa e passa 0,22 linha do alvo. Fase 2: mola de volta ao alvo.
-    const run = animate(pos, winnerIndex + 0.22, {
+    // Fase 1: corre com desaceleração longa e passa 0,14 linha do alvo. Fase 2: mola de volta ao alvo.
+    const run = animate(pos, winnerIndex + 0.14, {
       duration: Math.max(1, seconds - SPRING_MS / 1000),
       ease: [0.16, 0.62, 0.12, 1],
     });
@@ -111,8 +110,9 @@ export function DrawingScreen() {
   return (
     <div className="flex flex-col items-center gap-6">
       <PrizeShowcase prizeId={draw?.prizeId} compact />
-      <div className="flex items-center gap-[2vw]">
-        <div className="hidden lg:block">
+      {/* 3 colunas simétricas: o rolo fica no centro exato da tela, com ou sem mascote ao lado. */}
+      <div className="grid w-full grid-cols-[1fr_auto_1fr] items-center gap-[2vw]">
+        <div className="hidden justify-self-end lg:block">
           <Presentinho mood={locked ? 'excited' : 'suspense'} size={Math.round(Math.min(h * 0.26, 240))} />
         </div>
 
@@ -120,14 +120,14 @@ export function DrawingScreen() {
           <motion.div
             aria-hidden="true"
             className="absolute -inset-5 rounded-[56px] blur-2xl"
-            style={{ background: 'linear-gradient(120deg, rgba(28,176,246,.4), rgba(206,130,255,.4), rgba(88,204,2,.4))' }}
+            style={{ background: 'linear-gradient(120deg, rgba(253,66,55,.42), rgba(255,138,61,.42), rgba(255,180,31,.42))' }}
             animate={locked ? { opacity: 1, scale: 1.05 } : { opacity: [0.45, 0.85, 0.45], scale: 1 }}
             transition={locked ? { duration: 0.4 } : { duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
           />
 
           <div
             aria-label="Sorteando"
-            className="relative overflow-hidden rounded-[40px] border-4 border-white bg-gradient-to-b from-[#F1F8FF] via-white to-[#F1F8FF] shadow-2xl"
+            className="relative overflow-hidden rounded-[40px] border-4 border-white bg-gradient-to-b from-[#FFF6F5] via-white to-[#FFF6F5] shadow-2xl"
             style={{ width, height: 5 * H, perspective: 1100 }}
           >
             {reel.map((p, i) => (
@@ -143,8 +143,8 @@ export function DrawingScreen() {
               style={{ top: `calc(50% - ${H / 2 - 4}px)`, height: H - 8 }}
               animate={
                 locked
-                  ? { borderColor: '#58CC02', boxShadow: '0 0 0 8px rgba(88,204,2,.18), 0 0 50px rgba(88,204,2,.5)', scale: [1, 1.04, 1] }
-                  : { borderColor: '#1CB0F6', boxShadow: '0 0 0 6px rgba(28,176,246,.12), 0 0 30px rgba(28,176,246,.3)', scale: 1 }
+                  ? { borderColor: '#2EB872', boxShadow: '0 0 0 8px rgba(46,184,114,.18), 0 0 50px rgba(46,184,114,.5)', scale: [1, 1.04, 1] }
+                  : { borderColor: '#FD4237', boxShadow: '0 0 0 6px rgba(253,66,55,.12), 0 0 30px rgba(253,66,55,.32)', scale: 1 }
               }
               transition={{ duration: 0.45 }}
             />
@@ -152,7 +152,7 @@ export function DrawingScreen() {
 
           <motion.div
             aria-hidden="true"
-            className={`absolute -left-11 top-1/2 -translate-y-1/2 ${locked ? 'text-feather' : 'text-macaw'}`}
+            className={`absolute -left-11 top-1/2 -translate-y-1/2 ${locked ? 'text-success' : 'text-feather'}`}
             animate={locked ? { x: 0 } : { x: [0, 7, 0] }}
             transition={{ duration: 0.7, repeat: locked ? 0 : Infinity }}
           >
@@ -160,23 +160,15 @@ export function DrawingScreen() {
           </motion.div>
           <motion.div
             aria-hidden="true"
-            className={`absolute -right-11 top-1/2 -translate-y-1/2 ${locked ? 'text-feather' : 'text-macaw'}`}
+            className={`absolute -right-11 top-1/2 -translate-y-1/2 ${locked ? 'text-success' : 'text-feather'}`}
             animate={locked ? { x: 0 } : { x: [0, -7, 0] }}
             transition={{ duration: 0.7, repeat: locked ? 0 : Infinity }}
           >
             <ChevronLeft size={44} strokeWidth={4} />
           </motion.div>
         </div>
-        <div className="hidden w-[10vw] lg:block" />
+        <div />
       </div>
-
-      <motion.p
-        className={`text-[clamp(1.4rem,2.2vw,2.4rem)] font-extrabold ${locked ? 'text-feather' : 'text-macaw'}`}
-        animate={reduced || locked ? { opacity: 1 } : { opacity: [1, 0.45, 1] }}
-        transition={{ duration: 1.2, repeat: locked ? 0 : Infinity }}
-      >
-        {locked ? 'Achamos!' : 'Sorteando…'}
-      </motion.p>
     </div>
   );
 }

@@ -26,7 +26,7 @@ export function SetupScreen({ onOpenBackstage }: { onOpenBackstage: () => void }
             transition={{ delay: 0.15 * i, type: 'spring', stiffness: 380, damping: 26 }}
             className="flex items-center gap-4 rounded-2xl border-2 border-b-4 border-swan bg-white px-6 py-3 text-2xl font-extrabold text-eel"
           >
-            <span className={`inline-flex h-9 w-9 items-center justify-center rounded-full text-white ${it.ok ? 'bg-feather' : 'bg-cardinal'}`}>
+            <span className={`inline-flex h-9 w-9 items-center justify-center rounded-full text-white ${it.ok ? 'bg-success' : 'bg-cardinal'}`}>
               {it.ok ? <Check size={22} strokeWidth={4} /> : <X size={22} strokeWidth={4} />}
             </span>
             {it.label}

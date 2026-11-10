@@ -75,10 +75,10 @@ export function LivePanel() {
           </div>
         )}
         {draw && (phase === 'winnerReveal' || phase === 'drawing') && (
-          <div className="flex items-center gap-3 rounded-2xl bg-[#D7FFB8] p-3">
+          <div className="flex items-center gap-3 rounded-2xl bg-success-tint p-3">
             <Avatar name={draw.name} email={draw.email} size={56} />
             <div className="min-w-0">
-              <div className="text-xs font-extrabold uppercase tracking-wider text-feather-dark">Sorteado</div>
+              <div className="text-xs font-extrabold uppercase tracking-wider text-success-dark">Sorteado</div>
               <div className="truncate text-lg font-extrabold text-eel">{draw.name}</div>
               <div className="truncate text-sm font-bold text-wolf">{draw.email}</div>
             </div>

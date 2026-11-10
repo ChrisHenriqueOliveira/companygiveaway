@@ -6,21 +6,40 @@
 
 @theme {
   --font-sans: 'Nunito', system-ui, sans-serif;
-  --color-feather: #58cc02;
-  --color-feather-dark: #58a700;
-  --color-mask: #89e219;
-  --color-macaw: #1cb0f6;
-  --color-macaw-dark: #1899d6;
-  --color-cardinal: #ff4b4b;
-  --color-cardinal-dark: #ea2b2b;
-  --color-bee: #ffc800;
-  --color-bee-dark: #e5b400;
-  --color-fox: #ff9600;
-  --color-beetle: #ce82ff;
-  --color-eel: #4b4b4b;
-  --color-wolf: #777777;
-  --color-swan: #e5e5e5;
-  --color-polar: #f7f7f7;
+
+  /* Marca Viceri: tudo deriva do vermelho do logo (#fd4237). */
+  --color-feather: #fd4237; /* primária */
+  --color-feather-dark: #cf281e; /* sombra 3D / texto sobre fundo claro */
+  --color-feather-tint: #ffeceb;
+  --color-mask: #ff7a70; /* tom claro */
+
+  /* Secundária: o complemento do vermelho (matiz oposta), para contraste e informação. */
+  --color-macaw: #19a7ad;
+  --color-macaw-dark: #118088;
+  --color-macaw-tint: #dff5f6;
+
+  /* Análogas quentes: destaque e aviso. */
+  --color-fox: #ff8a3d;
+  --color-bee: #ffb41f;
+  --color-bee-dark: #d99200;
+  --color-bee-tint: #fff3d4;
+  --color-beetle: #8e5bd1;
+  --color-beetle-dark: #7b3fb8;
+  --color-beetle-tint: #f1e7fb;
+
+  /* Semânticas: sucesso (verde) e perigo (vinho, bem distinto do vermelho da marca). */
+  --color-success: #2eb872;
+  --color-success-dark: #1f9158;
+  --color-success-tint: #dcf5e8;
+  --color-cardinal: #b3153a;
+  --color-cardinal-dark: #8a0f2c;
+  --color-cardinal-tint: #fbe3e9;
+
+  /* Neutros quentes (puxados para o matiz da marca). */
+  --color-eel: #3b2f2e;
+  --color-wolf: #8b7f7d;
+  --color-swan: #efe4e2;
+  --color-polar: #fcf7f6;
 }
 
 html,
@@ -69,8 +88,8 @@ body {
 }
 .btn-3d:disabled {
   --btn-bg: var(--color-swan);
-  --btn-shadow: #cfcfcf;
-  --btn-fg: #afafaf;
+  --btn-shadow: #dccfcc;
+  --btn-fg: #b3a5a2;
   cursor: not-allowed;
 }
 .btn-feather { --btn-bg: var(--color-feather); --btn-shadow: var(--color-feather-dark); }

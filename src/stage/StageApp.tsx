@@ -1,6 +1,7 @@
 import { motion } from 'motion/react';
 import { Monitor, Printer } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { ViceriMark } from '../brand/ViceriMark';
 import { Presentinho } from '../mascot/Presentinho';
 import { printWinners } from '../print/printWinners';
 import { WinnersPrintSheet } from '../print/WinnersPrintSheet';
@@ -136,7 +137,7 @@ export function StageApp() {
       )}
 
       <header className="relative z-10 flex items-center justify-center gap-4 px-8 pt-5">
-        {logo && <img src={logo} alt="" className="h-12 object-contain" />}
+        {logo ? <img src={logo} alt="" className="h-12 object-contain" /> : <ViceriMark size={40} />}
         <span className="text-xl font-extrabold uppercase tracking-[0.25em] text-wolf">{eventName}</span>
       </header>
 

@@ -92,7 +92,7 @@ export function ParticipantsTab() {
                       aria-label={`Voltar ${p.name} a concorrer`}
                       title="Voltar a concorrer"
                       onClick={() => comeBack(p)}
-                      className="rounded-lg p-2 text-feather-dark hover:bg-polar"
+                      className="rounded-lg p-2 text-success-dark hover:bg-polar"
                     >
                       <RotateCcw size={18} strokeWidth={3} />
                     </button>
@@ -102,7 +102,7 @@ export function ParticipantsTab() {
                     aria-label={isExcluded ? `Voltar ${p.name} ao sorteio` : `Excluir ${p.name} do sorteio`}
                     title={isExcluded ? 'Voltar ao sorteio' : 'Excluir do sorteio'}
                     onClick={() => exclude(p.id)}
-                    className={`rounded-lg p-2 hover:bg-polar ${isExcluded ? 'text-feather-dark' : 'text-wolf hover:text-fox'}`}
+                    className={`rounded-lg p-2 hover:bg-polar ${isExcluded ? 'text-success-dark' : 'text-wolf hover:text-fox'}`}
                   >
                     {isExcluded ? <UserCheck size={18} strokeWidth={3} /> : <Ban size={18} strokeWidth={3} />}
                   </button>

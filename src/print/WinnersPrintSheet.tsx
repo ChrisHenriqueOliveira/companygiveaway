@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { ViceriMark } from '../brand/ViceriMark';
 import { useAppStore } from '../store/appStore';
 import { useWinners } from '../store/hooks';
 
@@ -24,16 +25,16 @@ export function WinnersPrintSheet() {
 
   return createPortal(
     <div className="print-root">
-      <header className="flex items-center gap-5 border-b-[3px] border-[#58CC02] pb-3">
-        {logo && <img src={logo} alt="" className="h-14 object-contain" />}
+      <header className="flex items-center gap-5 border-b-[3px] border-[#FD4237] pb-3">
+        {logo ? <img src={logo} alt="" className="h-14 object-contain" /> : <ViceriMark size={56} />}
         <div>
           <p className="text-sm font-extrabold uppercase tracking-[0.2em] text-[#777]">{eventName}</p>
-          <h1 className="text-3xl font-black text-[#58CC02]">Ganhadores</h1>
+          <h1 className="text-3xl font-black text-[#FD4237]">Ganhadores</h1>
         </div>
       </header>
 
       {rehearsal && (
-        <p className="mt-3 rounded-lg border-2 border-[#FFC800] bg-[#FFF5CC] px-3 py-1.5 text-center text-sm font-black uppercase tracking-widest text-[#E5B400]">
+        <p className="mt-3 rounded-lg border-2 border-[#FFB41F] bg-[#FFF3D4] px-3 py-1.5 text-center text-sm font-black uppercase tracking-widest text-[#D99200]">
           Ensaio — não é o resultado oficial
         </p>
       )}
