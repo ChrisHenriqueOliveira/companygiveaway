@@ -1,6 +1,7 @@
 import { motion } from 'motion/react';
-import { Monitor, Printer } from 'lucide-react';
+import { Monitor, Printer, Volume2, VolumeX } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { playTick, unlockAudio } from '../audio/reelSound';
 import { ViceriMark } from '../brand/ViceriMark';
 import { Presentinho } from '../mascot/Presentinho';
 import { printWinners } from '../print/printWinners';
@@ -44,6 +45,16 @@ export function StageApp() {
 
   useEffect(() => () => clearTimeout(redrawTimer.current), []);
   useEffect(() => startOwnerBridge(), []); // atende a janela de Controle (se houver)
+
+  // Navegadores só liberam áudio após um gesto do usuário: qualquer tecla/clique destrava.
+  useEffect(() => {
+    window.addEventListener('keydown', unlockAudio, true);
+    window.addEventListener('pointerdown', unlockAudio, true);
+    return () => {
+      window.removeEventListener('keydown', unlockAudio, true);
+      window.removeEventListener('pointerdown', unlockAudio, true);
+    };
+  }, []);
 
   // Outra aba/janela do palco gravou no mesmo localStorage: as duas se sobrescreveriam e ganhadores sumiriam.
   useEffect(() => {
@@ -97,6 +108,15 @@ export function StageApp() {
     if (!openControlWindow()) toast('Permita popups para esta página e tente de novo.', 'error');
   }
 
+  const soundOn = state.settings.soundEnabled;
+  const toggleSound = () => {
+    actions.updateSettings({ soundEnabled: !soundOn });
+    if (!soundOn) {
+      unlockAudio();
+      playTick(6); // um tique de confirmação ao ligar
+    }
+  };
+
   const toggleFullscreen = () => {
     if (document.fullscreenElement) void document.exitFullscreen();
     else void document.documentElement.requestFullscreen?.().catch(() => undefined);
@@ -110,6 +130,7 @@ export function StageApp() {
           absent: onAbsent,
           fullscreen: toggleFullscreen,
           backstage: openControl,
+          mute: toggleSound,
           print: () => {
             if (screen === 'finale') printWinners();
           },
@@ -195,6 +216,16 @@ export function StageApp() {
         </div>
       )}
       <div className="absolute bottom-4 right-4 z-20 flex gap-2 opacity-30 transition-opacity hover:opacity-100 focus-within:opacity-100">
+        <button
+          type="button"
+          aria-label={soundOn ? 'Desativar som' : 'Ativar som'}
+          aria-pressed={soundOn}
+          title={soundOn ? 'Som ligado (M)' : 'Som desligado (M)'}
+          onClick={toggleSound}
+          className="rounded-xl p-2 text-wolf hover:bg-polar"
+        >
+          {soundOn ? <Volume2 size={22} strokeWidth={2.5} /> : <VolumeX size={22} strokeWidth={2.5} />}
+        </button>
         <button type="button" aria-label="Abrir bastidores (janela de controle)" title="Bastidores / janela de controle (Ctrl+K)" onClick={openControl} className="rounded-xl p-2 text-wolf hover:bg-polar">
           <Monitor size={22} strokeWidth={2.5} />
         </button>

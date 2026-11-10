@@ -17,6 +17,7 @@ export function EventTab() {
   const logoId = useAppStore((s) => s.settings.logoImageId);
   const logo = useAppStore((s) => (logoId ? s.images[logoId] : undefined));
   const rehearsal = useAppStore((s) => s.rehearsal.active);
+  const soundOn = useAppStore((s) => s.settings.soundEnabled);
   const usage = useUsage();
 
   const [name, setName] = useState(eventName);
@@ -123,6 +124,14 @@ export function EventTab() {
           Treine o sorteio sem estragar nada: os sorteios de teste não ficam salvos e somem ao desligar. Cadastros feitos durante o ensaio continuam salvos.
         </p>
         <Toggle checked={rehearsal} onChange={actions.setRehearsal} label={rehearsal ? 'Ensaio ligado' : 'Ensaio desligado'} />
+      </Card>
+
+      <Card className="flex flex-col gap-3 p-5">
+        <h3 className="text-xl font-black text-eel">Som</h3>
+        <p className="font-bold text-wolf">
+          Só a roleta (um tique por nome, no ritmo da animação) e uma comemoração curta quando o ganhador é selecionado. Toca no computador do palco.
+        </p>
+        <Toggle checked={soundOn} onChange={(v) => actions.updateSettings({ soundEnabled: v })} label={soundOn ? 'Som ligado' : 'Som desligado'} />
       </Card>
 
       <Card className="flex flex-col gap-4 p-5">

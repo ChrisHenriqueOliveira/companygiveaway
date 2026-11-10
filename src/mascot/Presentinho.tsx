@@ -102,13 +102,15 @@ function Eyes({ mood, reduced }: { mood: Mood; reduced: boolean }) {
 
 function Sparkle({ x, y, delay }: { x: number; y: number; delay: number }) {
   return (
-    <motion.path
-      d="M0 -11 L3.2 -3.2 L11 0 L3.2 3.2 L0 11 L-3.2 3.2 L-11 0 L-3.2 -3.2 Z"
-      fill={AMBER}
-      style={{ x, y, transformBox: 'fill-box', transformOrigin: 'center' }}
-      animate={{ scale: [0.2, 1.1, 0.2], rotate: [0, 90, 180], opacity: [0, 1, 0] }}
-      transition={{ duration: 1.1, repeat: Infinity, delay }}
-    />
+    <g transform={`translate(${x} ${y})`}>
+      <motion.path
+        d="M0 -11 L3.2 -3.2 L11 0 L3.2 3.2 L0 11 L-3.2 3.2 L-11 0 L-3.2 -3.2 Z"
+        fill={AMBER}
+        style={{ transformBox: 'fill-box', transformOrigin: 'center' }}
+        animate={{ scale: [0.2, 1.1, 0.2], rotate: [0, 90, 180], opacity: [0, 1, 0] }}
+        transition={{ duration: 1.1, repeat: Infinity, delay }}
+      />
+    </g>
   );
 }
 
@@ -152,13 +154,16 @@ export function Mascot({ mood = 'idle', size = 200 }: { mood?: Mood; size?: numb
         </g>
 
         {mood === 'suspense' && (
-          <motion.path
-            d="M0 -8 Q9 6 0 12 Q-9 6 0 -8 Z"
-            fill={TEAL}
-            style={{ x: 176, y: 40 }}
-            animate={{ y: [40, 62], opacity: [1, 0] }}
-            transition={{ duration: 0.9, repeat: Infinity }}
-          />
+          // Gota de suor na testa, acima do olho direito: nasce em cima e escorre PARA BAIXO, sumindo.
+          // Posição fixa em <g transform>; só o deslocamento vertical é animado (x/y em style de <path> não é confiável em SVG).
+          <g transform="translate(160 36)">
+            <motion.path
+              d="M0 -9 Q9 5 0 11 Q-9 5 0 -9 Z"
+              fill={TEAL}
+              animate={{ y: [0, 26], opacity: [1, 1, 0] }}
+              transition={{ duration: 1, repeat: Infinity, ease: 'easeIn', times: [0, 0.7, 1] }}
+            />
+          </g>
         )}
         {mood === 'sad' && <ellipse cx="66" cy="124" rx="4.5" ry="7" fill="#8FDDE0" />}
         {mood === 'celebrate' && (
