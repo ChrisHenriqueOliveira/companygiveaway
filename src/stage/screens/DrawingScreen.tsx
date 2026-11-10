@@ -3,6 +3,8 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { currentDraw, eligibleParticipants } from '../../domain/engine';
 import type { Person } from '../../domain/types';
+import { playWin } from '../../audio/reelSound';
+import { useReelSound } from '../../audio/useReelSound';
 import { Presentinho } from '../../mascot/Presentinho';
 import { useActions } from '../../store/actions';
 import { useAppStore } from '../../store/appStore';
@@ -74,6 +76,8 @@ export function DrawingScreen() {
 
   const pos = useMotionValue(REEL_MARGIN); // linha que está no centro (cresce até o ganhador)
   const vel = useVelocity(pos);
+  const soundOn = useAppStore((s) => s.settings.soundEnabled);
+  useReelSound(pos, vel, soundOn); // um tique por nome que passa pelo centro, no ritmo exato da animação
   const [locked, setLocked] = useState(false);
 
   useEffect(() => {
@@ -86,7 +90,7 @@ export function DrawingScreen() {
     // Fase 1: corre com desaceleração longa e passa 0,14 linha do alvo. Fase 2: mola de volta ao alvo.
     const run = animate(pos, winnerIndex + 0.14, {
       duration: Math.max(1, seconds - SPRING_MS / 1000),
-      ease: [0.16, 0.62, 0.12, 1],
+      ease: [0.45, 0.9, 0.75, 1], // desacelera de forma contínua até o último nome (sem "arrastar" no fim)
     });
     void run.then(() => {
       if (!cancelled) spring = animate(pos, winnerIndex, { type: 'spring', stiffness: 170, damping: 13 });
@@ -95,6 +99,7 @@ export function DrawingScreen() {
     const lock = setTimeout(() => {
       setLocked(true);
       burst({ x: 0.5, y: 0.5 }, 70);
+      if (useAppStore.getState().settings.soundEnabled) playWin();
     }, seconds * 1000);
     const finish = setTimeout(() => actions.stageFinishDrawing(), seconds * 1000 + pacing().settleMs);
     return () => {

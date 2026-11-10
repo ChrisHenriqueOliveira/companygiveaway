@@ -47,6 +47,8 @@ export interface Settings {
   giftSeconds: number;
   /** Duração do rolo do sorteio (3–15 s). */
   suspenseSeconds: number;
+  /** Som da roleta e da comemoração (liga/desliga). */
+  soundEnabled: boolean;
 }
 
 export interface AppData {
@@ -75,6 +77,7 @@ export const DEFAULT_SETTINGS: Settings = {
   eventName: 'Sorteio de Fim de Ano Viceri 2026',
   giftSeconds: 4,
   suspenseSeconds: 7,
+  soundEnabled: true,
 };
 
 export function createEmptyData(): AppData {

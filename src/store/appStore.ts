@@ -274,6 +274,7 @@ export function createAppStore(opts: { persist: boolean; storage?: StateStorage 
         if (patch.giftSeconds !== undefined) {
           settings.giftSeconds = Math.min(15, Math.max(2, Math.round(patch.giftSeconds)));
         }
+        if (patch.soundEnabled !== undefined) settings.soundEnabled = !!patch.soundEnabled;
         if (patch.suspenseSeconds !== undefined) {
           settings.suspenseSeconds = Math.min(15, Math.max(3, Math.round(patch.suspenseSeconds)));
         }

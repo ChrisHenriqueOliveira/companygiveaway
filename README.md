@@ -29,6 +29,7 @@ Os **Bastidores** abrem sempre na janela de **Controle** (ícone de monitor, ou 
 | `Espaço` / `Enter` / `→` / `PageDown` | Avança (próximo prêmio → sortear → confirmar) |
 | `R` | Ausente: ressortear o mesmo prêmio |
 | `F` | Tela cheia |
+| `M` | Liga/desliga o som |
 | `P` | No mural final: imprimir / salvar em PDF a folha de ganhadores |
 | `Ctrl+K` | Abre/fecha os Bastidores |
 | `Esc` | Fecha o modal |
@@ -36,6 +37,10 @@ Os **Bastidores** abrem sempre na janela de **Controle** (ícone de monitor, ou 
 No Controle, depois de clicar nele o passador de slides continua funcionando (teclas `→` e `PageDown`). O "Ausente" no Controle pede confirmação com o nome da pessoa.
 
 Os botões "tela preta" dos passadores de slide (`B`, `.`, `W`) e `PageUp` são ignorados de propósito.
+
+### Som
+
+Só a roleta tem som (sintetizado, sem arquivos): um **tique por nome que passa pelo centro**, no ritmo exato da animação (mais agudo e baixinho quando rápido, mais grave e firme quando devagar), e uma **comemoração curta** de 3 notas quando o ganhador é selecionado. Presente, revelação e mural são silenciosos. Liga/desliga pelo ícone de alto-falante ao lado do monitor (canto inferior direito do palco), pela tecla `M` ou na aba Evento. O som toca no computador do palco; o navegador só libera áudio depois da primeira tecla/clique.
 
 ### Mural final e folha de ganhadores
 
