@@ -12,8 +12,8 @@ function safe(opts: confetti.Options) {
 }
 
 /** Explosão única (abrir o presente). */
-export function burst(origin: { x: number; y: number } = { x: 0.5, y: 0.6 }): void {
-  safe({ particleCount: 170, spread: 95, startVelocity: 48, origin });
+export function burst(origin: { x: number; y: number } = { x: 0.5, y: 0.6 }, count = 170): void {
+  safe({ particleCount: count, spread: 95, startVelocity: 48, origin });
 }
 
 /** Canhões laterais durante `ms` (revelação do ganhador). Devolve a função de limpeza. */

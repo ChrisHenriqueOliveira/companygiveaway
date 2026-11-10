@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildReel, buildReelWithMargins } from '../../src/stage/reel';
+import { buildReel, buildReelWithMargins, reelLength } from '../../src/stage/reel';
 import type { Person } from '../../src/domain/types';
 
 const p = (n: number): Person => ({ id: `u${n}`, name: `Pessoa ${n}`, email: `p${n}@v.com` });
@@ -63,5 +63,20 @@ describe('buildReelWithMargins (rolo contínuo: há nomes acima e abaixo do ganh
     const { cards, winnerIndex } = buildReelWithMargins([], p(9), 12, 2);
     expect(cards).toHaveLength(2 + 12 + 2);
     expect(cards[winnerIndex].id).toBe('u9');
+  });
+});
+
+describe('reelLength (mais tempo de rolo = mais cartões, para a velocidade parecer boa em qualquer duração)', () => {
+  it('scales with the duration and stays within sane bounds', () => {
+    expect(reelLength(3)).toBe(30);
+    expect(reelLength(7)).toBe(42);
+    expect(reelLength(15)).toBe(90);
+    expect(reelLength(1)).toBe(30);
+    expect(reelLength(99)).toBe(90);
+    let prev = 0;
+    for (let s = 3; s <= 15; s++) {
+      expect(reelLength(s)).toBeGreaterThanOrEqual(prev);
+      prev = reelLength(s);
+    }
   });
 });

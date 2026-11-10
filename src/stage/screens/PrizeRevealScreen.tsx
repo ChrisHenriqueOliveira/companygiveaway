@@ -13,9 +13,8 @@ type Step = 'shake' | 'pop' | 'show';
 
 /** O presente balança pelo tempo que o suspense configurado pede e só então revela o prêmio. */
 export function PrizeRevealScreen({ prizeId, onPrimary }: { prizeId?: string; onPrimary: () => void }) {
-  const suspense = useAppStore((s) => s.settings.suspenseSeconds);
   const gift = useAppStore((s) => s.settings.giftSeconds);
-  const p = pacing(suspense, gift);
+  const p = pacing(gift);
   const [step, setStep] = useState<Step>('shake');
   const [ready, setReady] = useState(false);
 

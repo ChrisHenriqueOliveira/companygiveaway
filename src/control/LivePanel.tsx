@@ -22,10 +22,10 @@ const LABEL: Record<StageScreen, string> = {
 };
 
 /** Segura os botões enquanto a animação do palco roda (o palco faz o mesmo no atalho de teclado). */
-function useReady(phase: StageScreen, prizeId: string | undefined, suspense: number, gift: number): boolean {
+function useReady(phase: StageScreen, prizeId: string | undefined, gift: number): boolean {
   const [ready, setReady] = useState(true);
   useEffect(() => {
-    const p = pacing(suspense, gift);
+    const p = pacing(gift);
     const ms = phase === 'prizeReveal' ? p.giftReadyMs : phase === 'winnerReveal' ? p.winnerLockMs : 500;
     setReady(false);
     const t = setTimeout(() => setReady(true), ms);
@@ -45,7 +45,7 @@ export function LivePanel() {
 
   const phase = deriveScreen(state);
   const stage = selectActiveStage(state);
-  const ready = useReady(phase, stage.prizeId, state.settings.suspenseSeconds, state.settings.giftSeconds);
+  const ready = useReady(phase, stage.prizeId, state.settings.giftSeconds);
 
   const draw = currentDraw(view);
   const prize = stage.prizeId ? state.prizes[stage.prizeId] : undefined;

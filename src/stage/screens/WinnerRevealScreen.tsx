@@ -18,10 +18,9 @@ import { useWindowSize } from '../useWindowSize';
 export function WinnerRevealScreen({ onPrimary, onAbsent }: { onPrimary: () => void; onAbsent: () => void }) {
   const view = useView();
   const draw = currentDraw(view);
-  const suspense = useAppStore((s) => s.settings.suspenseSeconds);
   const prize = useAppStore((s) => (draw ? s.prizes[draw.prizeId] : undefined));
   const image = useAppStore((s) => (prize?.imageId ? s.images[prize.imageId] : undefined));
-  const { winnerScale: k, winnerLockMs } = pacing(suspense);
+  const { winnerScale: k, winnerLockMs } = pacing();
   const { h } = useWindowSize();
 
   useEffect(() => {

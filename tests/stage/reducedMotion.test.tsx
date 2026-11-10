@@ -53,21 +53,21 @@ describe('"reduzir movimento" do sistema não encurta o suspense configurado', (
     advance(2500); // antes do bug o botão já aparecia em ~0,9 s
     expect(screen.queryByRole('button', { name: /sortear!/i })).not.toBeInTheDocument();
 
-    advance(pacing(7, 5).giftReadyMs + 200);
+    advance(pacing(5).giftReadyMs + 200);
     expect(screen.getByRole('button', { name: /sortear!/i })).toBeInTheDocument();
   });
 
   it('the reel lasts the configured suspense (7 s), not a capped 2 s', () => {
     render(<StageApp />);
     fireEvent.keyDown(window, { key: ' ' });
-    advance(pacing(7, 5).giftReadyMs + 200);
+    advance(pacing(5).giftReadyMs + 200);
     fireEvent.keyDown(window, { key: ' ' });
     expect(useAppStore.getState().stage.phase).toBe('drawing');
 
     advance(3000); // com o teto antigo de 2 s já teria revelado o ganhador
     expect(useAppStore.getState().stage.phase).toBe('drawing');
 
-    advance(7000 + pacing(7, 5).settleMs);
+    advance(7000 + pacing(5).settleMs);
     expect(useAppStore.getState().stage.phase).toBe('winnerReveal');
   });
 });
