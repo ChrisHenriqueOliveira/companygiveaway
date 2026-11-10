@@ -55,11 +55,12 @@ class FakeCtx {
   destination = new FakeNode();
   oscs: FakeOsc[] = [];
   gains: FakeGain[] = [];
+  sources: FakeSource[] = [];
   constructor() { FakeCtx.last = this; }
   createOscillator() { const o = new FakeOsc(); this.oscs.push(o); return o; }
   createGain() { const g = new FakeGain(); this.gains.push(g); return g; }
   createBiquadFilter() { return new FakeFilter(); }
-  createBufferSource() { return new FakeSource(); }
+  createBufferSource() { const s = new FakeSource(); this.sources.push(s); return s; }
   createBuffer(_c: number, len: number) { return { getChannelData: () => new Float32Array(len) }; }
   createDynamicsCompressor() { const n = new FakeNode() as FakeNode & Record<string, FakeParam>; for (const k of ['threshold', 'knee', 'ratio', 'attack', 'release']) n[k] = new FakeParam(); return n; }
   resume() { return Promise.resolve(); }
@@ -110,5 +111,67 @@ describe('reel sound engine', () => {
       engine.playWin();
       engine.unlockAudio();
     }).not.toThrow();
+  });
+});
+
+describe('gift and confetti sounds', () => {
+  beforeEach(async () => {
+    vi.stubGlobal('AudioContext', FakeCtx);
+    (await import('../../src/audio/reelSound')).__resetAudioForTests();
+  });
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.useRealTimers();
+  });
+
+  const peak = (from: number) =>
+    Math.max(0, ...FakeCtx.last.gains.slice(from).map((g) => g.gain.calls.find((x) => x[0] === 'exp')?.[1] ?? 0));
+
+  it('the shake is a soft rattle that gets stronger as the anticipation grows', async () => {
+    const { playShake } = await import('../../src/audio/reelSound');
+    playShake(0.2);
+    const afterFirst = FakeCtx.last.gains.length;
+    const soft = peak(0);
+    playShake(1);
+    expect(peak(afterFirst)).toBeGreaterThan(soft);
+    expect(FakeCtx.last.sources.length).toBeGreaterThanOrEqual(2); // um ruído por chacoalhada
+  });
+
+  it('the gift pop is a quick falling "pop" plus a whoosh of air', async () => {
+    const { playPop } = await import('../../src/audio/reelSound');
+    playPop();
+    const osc = FakeCtx.last.oscs[0];
+    const start = osc.frequency.calls.find((x) => x[0] === 'set')![1];
+    const end = osc.frequency.calls.find((x) => x[0] === 'exp')![1];
+    expect(end).toBeLessThan(start); // o pitch cai: "pop"
+    expect(FakeCtx.last.sources.length).toBeGreaterThanOrEqual(2); // estalo + sopro
+  });
+
+  it('the confetti is two cannon pops followed by a crackle of many tiny sparkles', async () => {
+    const { playConfetti } = await import('../../src/audio/reelSound');
+    playConfetti();
+    expect(FakeCtx.last.oscs.length).toBeGreaterThanOrEqual(2); // dois estouros
+    expect(FakeCtx.last.sources.length).toBeGreaterThanOrEqual(10); // chuvisco de brilhos
+  });
+
+  it('the rattle pulses about every swing of the box until it is stopped, and respects the on/off switch', async () => {
+    vi.useFakeTimers();
+    const { startRattle } = await import('../../src/audio/reelSound');
+
+    const stop = startRattle(1100);
+    vi.advanceTimersByTime(1100);
+    const pulses = FakeCtx.last.oscs.length;
+    expect(pulses).toBeGreaterThanOrEqual(6);
+    expect(pulses).toBeLessThanOrEqual(8);
+
+    stop();
+    vi.advanceTimersByTime(1000);
+    expect(FakeCtx.last.oscs.length).toBe(pulses);
+
+    const before = FakeCtx.last.oscs.length;
+    const stopMuted = startRattle(1100, () => false);
+    vi.advanceTimersByTime(1100);
+    stopMuted();
+    expect(FakeCtx.last.oscs.length).toBe(before);
   });
 });

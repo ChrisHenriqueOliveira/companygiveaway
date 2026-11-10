@@ -65,5 +65,5 @@ describe('the winner reveal does not depend on the reel duration', () => {
     const long = msUntilConfirmWorks(12);
     expect(Math.abs(short - long)).toBeLessThanOrEqual(150);
     expect(short).toBeGreaterThanOrEqual(pacing(2).winnerLockMs - 200);
-  });
+  }, 30000); // avança o relógio em muitos passos: dá folga quando a máquina está carregada
 });

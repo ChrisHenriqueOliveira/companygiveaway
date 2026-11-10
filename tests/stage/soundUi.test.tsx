@@ -11,9 +11,16 @@ import { DrawingScreen } from '../../src/stage/screens/DrawingScreen';
 
 const playTick = vi.fn();
 const playWin = vi.fn();
+const playPop = vi.fn();
+const playConfetti = vi.fn();
+const stopRattle = vi.fn();
+const startRattle = vi.fn((..._a: unknown[]) => stopRattle);
 vi.mock('../../src/audio/reelSound', () => ({
   playTick: (...a: unknown[]) => playTick(...a),
   playWin: (...a: unknown[]) => playWin(...a),
+  playPop: (...a: unknown[]) => playPop(...a),
+  playConfetti: (...a: unknown[]) => playConfetti(...a),
+  startRattle: (...a: unknown[]) => startRattle(...a),
   unlockAudio: () => undefined,
   __resetAudioForTests: () => undefined,
 }));
@@ -42,6 +49,10 @@ function reset() {
 beforeEach(() => {
   playTick.mockClear();
   playWin.mockClear();
+  playPop.mockClear();
+  playConfetti.mockClear();
+  stopRattle.mockClear();
+  startRattle.mockClear();
   vi.useFakeTimers();
   reset();
 });
@@ -118,11 +129,75 @@ describe('celebration sound when the reel locks on the winner', () => {
     expect(playWin).not.toHaveBeenCalled();
   });
 
-  it('there is no sound anywhere else on the stage (gift, reveal, idle)', () => {
+  it('the reel itself never makes the gift or reveal sounds, and idle is silent', () => {
     render(<StageApp />);
-    fireEvent.keyDown(window, { key: ' ' }); // próximo prêmio -> presente
-    act(() => void vi.advanceTimersByTime(4000));
+    act(() => void vi.advanceTimersByTime(3000));
     expect(playTick).not.toHaveBeenCalled();
     expect(playWin).not.toHaveBeenCalled();
+    expect(playPop).not.toHaveBeenCalled();
+    expect(playConfetti).not.toHaveBeenCalled();
+    expect(startRattle).not.toHaveBeenCalled();
+  });
+});
+
+describe('gift sounds: rattle while it shakes, pop when it opens', () => {
+  it('starts the rattle with the shaking time, then stops it and pops exactly when the lid flies', () => {
+    render(<StageApp />);
+    fireEvent.keyDown(window, { key: ' ' }); // próximo prêmio -> presente balançando
+    expect(startRattle).toHaveBeenCalledTimes(1);
+    expect(startRattle.mock.calls[0][0]).toBe(2000); // giftSeconds = 2
+    expect(playPop).not.toHaveBeenCalled();
+
+    act(() => void vi.advanceTimersByTime(1900));
+    expect(stopRattle).not.toHaveBeenCalled();
+    expect(playPop).not.toHaveBeenCalled();
+
+    act(() => void vi.advanceTimersByTime(200)); // a tampa estoura
+    expect(stopRattle).toHaveBeenCalledTimes(1);
+    expect(playPop).toHaveBeenCalledTimes(1);
+  });
+
+  it('stops the rattle if the gift is cancelled before it opens', () => {
+    render(<StageApp />);
+    fireEvent.keyDown(window, { key: ' ' });
+    act(() => useAppStore.getState().stageBackToIdle());
+    expect(stopRattle).toHaveBeenCalledTimes(1);
+    expect(playPop).not.toHaveBeenCalled();
+  });
+
+  it('is silent when sound is off (the rattle is asked, but its on/off check says no; no pop)', () => {
+    useAppStore.getState().updateSettings({ soundEnabled: false });
+    render(<StageApp />);
+    fireEvent.keyDown(window, { key: ' ' });
+    const isOn = startRattle.mock.calls[0]?.[1] as (() => boolean) | undefined;
+    expect(isOn?.()).toBe(false);
+    act(() => void vi.advanceTimersByTime(2100));
+    expect(playPop).not.toHaveBeenCalled();
+  });
+});
+
+describe('winner reveal ("Temos um sortudo!") plays the confetti sound with the visual confetti', () => {
+  function toWinnerReveal() {
+    const s = useAppStore.getState();
+    s.stageNext();
+    s.stageStartDraw();
+    s.stageFinishDrawing();
+  }
+
+  it('plays once, when the cannons start (the name appears)', () => {
+    toWinnerReveal();
+    render(<StageApp />);
+    act(() => void vi.advanceTimersByTime(2000));
+    expect(playConfetti).not.toHaveBeenCalled();
+    act(() => void vi.advanceTimersByTime(500)); // 2,3 s: nome + canhões
+    expect(playConfetti).toHaveBeenCalledTimes(1);
+  });
+
+  it('is silent when sound is off', () => {
+    useAppStore.getState().updateSettings({ soundEnabled: false });
+    toWinnerReveal();
+    render(<StageApp />);
+    act(() => void vi.advanceTimersByTime(5000));
+    expect(playConfetti).not.toHaveBeenCalled();
   });
 });

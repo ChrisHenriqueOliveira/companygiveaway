@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { currentDraw } from '../../domain/engine';
 import { useAppStore } from '../../store/appStore';
 import { useView } from '../../store/hooks';
+import { playConfetti } from '../../audio/reelSound';
 import { Avatar, Button } from '../../ui';
 import { PrizeImage } from '../../ui/PrizeImage';
 import { cannons } from '../confetti';
@@ -28,6 +29,7 @@ export function WinnerRevealScreen({ onPrimary, onAbsent }: { onPrimary: () => v
     let stop = () => undefined as void;
     const t = setTimeout(() => {
       stop = cannons(2800);
+      if (useAppStore.getState().settings.soundEnabled) playConfetti(); // junto com o confete visual
     }, 2300 * k);
     return () => {
       clearTimeout(t);
