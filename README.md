@@ -40,7 +40,14 @@ Os botões "tela preta" dos passadores de slide (`B`, `.`, `W`) e `PageUp` são 
 
 ### Som
 
-Só a roleta tem som (sintetizado, sem arquivos): um **tique por nome que passa pelo centro**, no ritmo exato da animação (mais agudo e baixinho quando rápido, mais grave e firme quando devagar), e uma **comemoração curta** de 3 notas quando o ganhador é selecionado. Presente, revelação e mural são silenciosos. Liga/desliga pelo ícone de alto-falante ao lado do monitor (canto inferior direito do palco), pela tecla `M` ou na aba Evento. O som toca no computador do palco; o navegador só libera áudio depois da primeira tecla/clique.
+Quatro momentos, todos sintetizados (sem arquivos) e discretos:
+
+- **Presente:** um chocalho suave a cada balanço da caixa, ficando mais forte até estourar, e um "pop" com um sopro de ar quando a tampa voa.
+- **Roleta:** um **tique por nome que passa pelo centro**, no ritmo exato da animação (mais agudo e baixinho quando rápido, mais grave e firme quando devagar), e uma comemoração curta de 3 notas quando o ganhador é selecionado.
+- **"Temos um sortudo!":** dois estouros de canhão de confete e um chuvisco de brilhinhos, junto com o confete visual.
+- O resto (tela inicial, mural) é silencioso.
+
+Liga/desliga pelo ícone de alto-falante ao lado do monitor (canto inferior direito do palco), pela tecla `M` ou na aba Evento. O som toca no computador do palco; o navegador só libera áudio depois da primeira tecla/clique.
 
 ### Mural final e folha de ganhadores
 

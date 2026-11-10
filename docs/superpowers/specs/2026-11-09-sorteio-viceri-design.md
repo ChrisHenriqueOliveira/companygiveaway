@@ -24,7 +24,7 @@ Temática visual: **Duolingo** (cores vibrantes, botões "gordinhos" 3D, cantos 
 ## 3. Não-objetivos (decididos pelo usuário)
 
 - **Sem contador de prêmios** ("Prêmio 3 de 12" ou similar). A plateia não pode saber quantos faltam nem se é o último.
-- **Sem sons**, exceto (decisão posterior do usuário): tique da roleta sincronizado com os nomes + uma comemoração curta na seleção, com liga/desliga.
+- **Sem sons**, exceto (decisão posterior do usuário), sempre discretos e com liga/desliga: chocalho e pop do presente, tique da roleta sincronizado com os nomes + comemoração curta na seleção, e confete na revelação do ganhador.
 - **Sem "grand finale"**: o último prêmio é idêntico aos outros.
 - Sem fotos dos colaboradores, sem Microsoft Graph, sem App Registration.
 - Sem backend, login ou banco de dados.

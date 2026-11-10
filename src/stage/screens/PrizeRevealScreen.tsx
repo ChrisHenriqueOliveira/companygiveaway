@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
 import { useEffect, useState } from 'react';
+import { playPop, startRattle } from '../../audio/reelSound';
 import { useAppStore } from '../../store/appStore';
 import { Button } from '../../ui';
 import { burst } from '../confetti';
@@ -22,15 +23,22 @@ export function PrizeRevealScreen({ prizeId, onPrimary }: { prizeId?: string; on
     // O suspense configurado vale sempre, mesmo com "reduzir movimento" ligado no sistema (é o show do evento).
     const t = [p.giftPopMs, p.giftShowMs, p.giftReadyMs];
     lockStage(t[2]);
+    // Chocalho enquanto balança (mais forte perto de estourar); consulta o liga/desliga a cada chacoalhada.
+    const stopRattle = startRattle(t[0], () => useAppStore.getState().settings.soundEnabled);
     const timers = [
       setTimeout(() => {
         setStep('pop');
         burst();
+        stopRattle();
+        if (useAppStore.getState().settings.soundEnabled) playPop();
       }, t[0]),
       setTimeout(() => setStep('show'), t[1]),
       setTimeout(() => setReady(true), t[2]),
     ];
-    return () => timers.forEach(clearTimeout);
+    return () => {
+      stopRattle();
+      timers.forEach(clearTimeout);
+    };
   }, [p.giftPopMs, p.giftShowMs, p.giftReadyMs]);
 
   const { h } = useWindowSize();
