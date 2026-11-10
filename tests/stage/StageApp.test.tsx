@@ -105,7 +105,7 @@ describe('StageApp', () => {
     advance(5200);
     expect(phase()).toBe('winnerReveal');
     expect(useAppStore.getState().draws).toHaveLength(1);
-    advance(3000);
+    advance(4200);
     snap();
 
     key(' ');
@@ -129,7 +129,7 @@ describe('StageApp', () => {
     advance(3500);
     key(' ');
     advance(5200);
-    advance(3000);
+    advance(4200);
     key(' '); // confirma o único prêmio
     advance(800);
     expect(phase()).toBe('idle');
@@ -151,7 +151,7 @@ describe('StageApp', () => {
     advance(3500);
     key(' ');
     advance(5200);
-    advance(3000);
+    advance(4200);
     const first = useAppStore.getState().draws[0];
 
     key('r');

@@ -91,7 +91,7 @@ export function ImportDialog({ open, onClose }: Props) {
                   <select
                     value={cols[k]}
                     onChange={(e) => setCols((c) => ({ ...c, [k]: e.target.value }))}
-                    className="w-full rounded-2xl border-2 border-swan bg-polar px-4 py-3 font-bold text-eel outline-none focus:border-macaw"
+                    className="w-full rounded-2xl border-2 border-swan bg-polar px-4 py-3 font-bold text-eel outline-none focus:border-feather"
                   >
                     <option value="">{k === 'name' ? 'Usar o começo do e-mail' : 'Escolha…'}</option>
                     {sheet.headers.map((h) => (
@@ -140,7 +140,7 @@ export function ImportDialog({ open, onClose }: Props) {
                   onClick={() => setMode(id)}
                   className={cn(
                     'rounded-2xl border-2 border-b-4 p-4 text-left transition',
-                    mode === id ? 'border-macaw bg-[#DDF4FF]' : 'border-swan bg-white hover:bg-polar',
+                    mode === id ? 'border-macaw bg-[#DFF5F6]' : 'border-swan bg-white hover:bg-polar',
                   )}
                 >
                   <span className="block text-lg font-black text-eel">{label}</span>

@@ -2,11 +2,11 @@ import type { ReactNode } from 'react';
 import { cn } from './cn';
 
 const COLORS = {
-  green: 'bg-[#D7FFB8] text-feather-dark',
-  blue: 'bg-[#DDF4FF] text-macaw-dark',
-  red: 'bg-[#FFDFE0] text-cardinal-dark',
-  yellow: 'bg-[#FFF5CC] text-fox',
-  purple: 'bg-[#F3E1FF] text-[#A560E8]',
+  green: 'bg-success-tint text-success-dark',
+  blue: 'bg-macaw-tint text-macaw-dark',
+  red: 'bg-cardinal-tint text-cardinal-dark',
+  yellow: 'bg-bee-tint text-fox',
+  purple: 'bg-beetle-tint text-beetle-dark',
   gray: 'bg-polar text-wolf',
 } as const;
 

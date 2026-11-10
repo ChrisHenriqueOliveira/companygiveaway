@@ -185,7 +185,7 @@ export function PrizesTab() {
   return (
     <div className="flex flex-col gap-6">
       {usage.ratio > 0.8 && (
-        <div className="rounded-2xl border-2 border-bee bg-[#FFF5CC] px-4 py-3 font-extrabold text-fox">
+        <div className="rounded-2xl border-2 border-bee bg-[#FFF3D4] px-4 py-3 font-extrabold text-fox">
           O armazenamento está quase cheio ({Math.round(usage.ratio * 100)}%). Remova imagens ou baixe um backup.
         </div>
       )}
@@ -273,7 +273,7 @@ export function PrizesTab() {
                 <li key={d.id} className="flex items-center gap-3 rounded-2xl bg-polar p-2.5">
                   <PrizeImage src={p?.imageId ? images[p.imageId] : undefined} size={40} />
                   <span className="flex-1 font-extrabold text-eel">{d.prizeName}</span>
-                  <span className="font-extrabold text-feather-dark">{d.name}</span>
+                  <span className="font-extrabold text-success-dark">{d.name}</span>
                 </li>
               );
             })}

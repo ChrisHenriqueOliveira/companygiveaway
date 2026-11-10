@@ -15,7 +15,7 @@ export function TextInput({ className, ...rest }: InputHTMLAttributes<HTMLInputE
   return (
     <input
       className={cn(
-        'w-full rounded-2xl border-2 border-swan bg-polar px-4 py-3 font-bold text-eel outline-none transition placeholder:text-[#AFAFAF] focus:border-macaw focus:bg-white',
+        'w-full rounded-2xl border-2 border-swan bg-polar px-4 py-3 font-bold text-eel outline-none transition placeholder:text-[#B3A5A2] focus:border-feather focus:bg-white',
         className,
       )}
       {...rest}

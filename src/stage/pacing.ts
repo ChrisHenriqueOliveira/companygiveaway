@@ -9,28 +9,27 @@ export interface Pacing {
   giftShowMs: number;
   /** Botão "Sortear!" liberado. */
   giftReadyMs: number;
-  /** Pausa com o ganhador centralizado no rolo antes da revelação. */
+  /** Pausa com o ganhador travado no centro do rolo antes da revelação. Fixa. */
   settleMs: number;
-  /** Multiplicador dos atrasos da revelação do ganhador (1 = suspense de 7 s). */
+  /** Multiplicador dos atrasos da revelação do ganhador. Sempre 1: a revelação é sempre igual. */
   winnerScale: number;
-  /** Tempo até o "Confirmar" ser liberado na revelação do ganhador. */
+  /** Tempo até o "Confirmar" ser liberado na revelação do ganhador. Fixo. */
   winnerLockMs: number;
 }
 
 /**
- * Dois botões de ritmo independentes: `giftSeconds` (abertura do presente, 2–15 s) e
- * `suspenseSeconds` (rolo do sorteio e revelação do ganhador, 3–15 s).
+ * Só a abertura do presente (`giftSeconds`, 2–15 s) é configurável aqui. A duração do rolo
+ * (`suspenseSeconds`) vale apenas para o rolo: a pausa depois dele e a revelação do ganhador
+ * são sempre iguais, porque o público já sabe quem ganhou.
  */
-export function pacing(suspenseSeconds: number, giftSeconds: number = DEFAULT_SETTINGS.giftSeconds): Pacing {
-  const s = clamp(suspenseSeconds, 3, 15);
+export function pacing(giftSeconds: number = DEFAULT_SETTINGS.giftSeconds): Pacing {
   const giftPopMs = Math.round(clamp(giftSeconds, 2, 15) * 1000);
-  const winnerScale = clamp(s / 7, 0.6, 2);
   return {
     giftPopMs,
     giftShowMs: giftPopMs + 500,
     giftReadyMs: giftPopMs + 1100,
-    settleMs: Math.round(900 + s * 150),
-    winnerScale,
-    winnerLockMs: Math.round(3800 * winnerScale),
+    settleMs: 1800,
+    winnerScale: 1,
+    winnerLockMs: 3800,
   };
 }

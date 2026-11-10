@@ -39,3 +39,11 @@ export function buildReelWithMargins(
 
   return { cards: [...lead, ...body, ...tail], winnerIndex: margin + length - 1 };
 }
+
+/**
+ * Quantidade de cartões do rolo: mais tempo de rolo = mais cartões, para a velocidade média
+ * continuar boa de ver (rápida o bastante para borrar, lenta o bastante para ler no fim).
+ */
+export function reelLength(seconds: number): number {
+  return Math.min(90, Math.max(30, Math.round(seconds * 6)));
+}

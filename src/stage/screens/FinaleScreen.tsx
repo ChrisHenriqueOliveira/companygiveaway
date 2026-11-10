@@ -10,12 +10,12 @@ import { useWindowSize } from '../useWindowSize';
 
 /** Cada prêmio ganha uma cor; ela liga visualmente a faixa do prêmio ao cartão do ganhador. */
 const ACCENTS = [
-  { bg: '#58CC02', fg: '#fff' },
-  { bg: '#1CB0F6', fg: '#fff' },
-  { bg: '#FF9600', fg: '#fff' },
-  { bg: '#CE82FF', fg: '#fff' },
-  { bg: '#FF4B4B', fg: '#fff' },
-  { bg: '#FFC800', fg: '#4B4B4B' },
+  { bg: '#FD4237', fg: '#fff' },
+  { bg: '#19A7AD', fg: '#fff' },
+  { bg: '#FF8A3D', fg: '#fff' },
+  { bg: '#8E5BD1', fg: '#fff' },
+  { bg: '#FF6B8B', fg: '#fff' },
+  { bg: '#FFB41F', fg: '#3B2F2E' },
 ] as const;
 
 /**

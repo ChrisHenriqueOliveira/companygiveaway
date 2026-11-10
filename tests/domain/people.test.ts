@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { avatarColor, initials, validateNewPerson } from '../../src/domain/people';
 
-const PALETTE = ['#58CC02', '#1CB0F6', '#FF4B4B', '#FFC800', '#FF9600', '#CE82FF'];
+const PALETTE = ['#FD4237', '#FF8A3D', '#FFB41F', '#19A7AD', '#8E5BD1', '#FF6B8B'];
 
 describe('initials', () => {
   it('uses first and last name', () => {

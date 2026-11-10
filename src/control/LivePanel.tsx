@@ -22,10 +22,10 @@ const LABEL: Record<StageScreen, string> = {
 };
 
 /** Segura os botões enquanto a animação do palco roda (o palco faz o mesmo no atalho de teclado). */
-function useReady(phase: StageScreen, prizeId: string | undefined, suspense: number, gift: number): boolean {
+function useReady(phase: StageScreen, prizeId: string | undefined, gift: number): boolean {
   const [ready, setReady] = useState(true);
   useEffect(() => {
-    const p = pacing(suspense, gift);
+    const p = pacing(gift);
     const ms = phase === 'prizeReveal' ? p.giftReadyMs : phase === 'winnerReveal' ? p.winnerLockMs : 500;
     setReady(false);
     const t = setTimeout(() => setReady(true), ms);
@@ -45,7 +45,7 @@ export function LivePanel() {
 
   const phase = deriveScreen(state);
   const stage = selectActiveStage(state);
-  const ready = useReady(phase, stage.prizeId, state.settings.suspenseSeconds, state.settings.giftSeconds);
+  const ready = useReady(phase, stage.prizeId, state.settings.giftSeconds);
 
   const draw = currentDraw(view);
   const prize = stage.prizeId ? state.prizes[stage.prizeId] : undefined;
@@ -75,10 +75,10 @@ export function LivePanel() {
           </div>
         )}
         {draw && (phase === 'winnerReveal' || phase === 'drawing') && (
-          <div className="flex items-center gap-3 rounded-2xl bg-[#D7FFB8] p-3">
+          <div className="flex items-center gap-3 rounded-2xl bg-success-tint p-3">
             <Avatar name={draw.name} email={draw.email} size={56} />
             <div className="min-w-0">
-              <div className="text-xs font-extrabold uppercase tracking-wider text-feather-dark">Sorteado</div>
+              <div className="text-xs font-extrabold uppercase tracking-wider text-success-dark">Sorteado</div>
               <div className="truncate text-lg font-extrabold text-eel">{draw.name}</div>
               <div className="truncate text-sm font-bold text-wolf">{draw.email}</div>
             </div>

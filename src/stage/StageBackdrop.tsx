@@ -1,43 +1,32 @@
 import { motion, useReducedMotion } from 'motion/react';
+import { ViceriMark } from '../brand/ViceriMark';
 
-const SHAPES = [
-  { x: 6, y: 12, s: 46, c: '#58CC02', t: 'circle' },
-  { x: 90, y: 10, s: 38, c: '#1CB0F6', t: 'square' },
-  { x: 14, y: 46, s: 30, c: '#FFC800', t: 'tri' },
-  { x: 94, y: 42, s: 52, c: '#CE82FF', t: 'circle' },
-  { x: 4, y: 80, s: 40, c: '#FF4B4B', t: 'square' },
-  { x: 88, y: 84, s: 34, c: '#FF9600', t: 'tri' },
-  { x: 24, y: 90, s: 28, c: '#1CB0F6', t: 'circle' },
-  { x: 74, y: 6, s: 26, c: '#FFC800', t: 'square' },
-  { x: 38, y: 6, s: 22, c: '#CE82FF', t: 'tri' },
-  { x: 62, y: 92, s: 44, c: '#58CC02', t: 'square' },
-  { x: 80, y: 62, s: 24, c: '#FF4B4B', t: 'circle' },
-  { x: 10, y: 64, s: 22, c: '#58CC02', t: 'tri' },
+/** Anéis da marca flutuando bem de leve ao fundo: dão a cara da Viceri sem competir com o conteúdo. */
+const MARKS = [
+  { x: -3, y: -6, s: 300, c: '#FD4237', o: 0.07, r: -12 },
+  { x: 84, y: 52, s: 360, c: '#FF8A3D', o: 0.06, r: 28 },
+  { x: 66, y: -10, s: 140, c: '#FFB41F', o: 0.11, r: 10 },
+  { x: 8, y: 66, s: 190, c: '#19A7AD', o: 0.07, r: 160 },
+  { x: 40, y: 82, s: 110, c: '#FD4237', o: 0.1, r: -30 },
+  { x: 92, y: -4, s: 90, c: '#8E5BD1', o: 0.08, r: 200 },
+  { x: 24, y: 24, s: 70, c: '#FF6B8B', o: 0.1, r: 70 },
+  { x: 70, y: 78, s: 120, c: '#FFB41F', o: 0.09, r: -70 },
 ] as const;
 
-/** Confetes geométricos suaves ao fundo: dão a cara de festa sem competir com o conteúdo. */
 export function StageBackdrop() {
   const reduced = useReducedMotion();
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-      {SHAPES.map((sh, i) => (
+      {MARKS.map((m, i) => (
         <motion.div
           key={i}
-          className="absolute opacity-[0.16]"
-          style={{
-            left: `${sh.x}%`,
-            top: `${sh.y}%`,
-            width: sh.s,
-            height: sh.s,
-            background: sh.t === 'tri' ? 'transparent' : sh.c,
-            borderRadius: sh.t === 'circle' ? '50%' : sh.t === 'square' ? 10 : 0,
-            borderLeft: sh.t === 'tri' ? `${sh.s / 2}px solid transparent` : undefined,
-            borderRight: sh.t === 'tri' ? `${sh.s / 2}px solid transparent` : undefined,
-            borderBottom: sh.t === 'tri' ? `${sh.s}px solid ${sh.c}` : undefined,
-          }}
-          animate={reduced ? undefined : { y: [0, -14, 0], rotate: [0, i % 2 ? 14 : -14, 0] }}
-          transition={{ duration: 5 + (i % 4), repeat: Infinity, ease: 'easeInOut', delay: i * 0.3 }}
-        />
+          className="absolute"
+          style={{ left: `${m.x}%`, top: `${m.y}%`, opacity: m.o, rotate: m.r }}
+          animate={reduced ? undefined : { y: [0, -16, 0], rotate: [m.r, m.r + (i % 2 ? 9 : -9), m.r] }}
+          transition={{ duration: 7 + (i % 4) * 1.5, repeat: Infinity, ease: 'easeInOut', delay: i * 0.4 }}
+        >
+          <ViceriMark size={m.s} color={m.c} />
+        </motion.div>
       ))}
     </div>
   );

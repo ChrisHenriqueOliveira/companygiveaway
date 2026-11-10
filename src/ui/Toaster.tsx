@@ -25,7 +25,7 @@ export function toast(msg: string, kind: Kind = 'info'): void {
 }
 
 const STYLE: Record<Kind, { cls: string; icon: typeof Info }> = {
-  success: { cls: 'border-feather-dark bg-feather text-white', icon: CheckCircle2 },
+  success: { cls: 'border-success-dark bg-success text-white', icon: CheckCircle2 },
   error: { cls: 'border-cardinal-dark bg-cardinal text-white', icon: AlertTriangle },
   info: { cls: 'border-macaw-dark bg-macaw text-white', icon: Info },
 };

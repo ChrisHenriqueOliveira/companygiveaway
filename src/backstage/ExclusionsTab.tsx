@@ -33,7 +33,7 @@ export function ExclusionsTab() {
           Diretores e organizadores ficam aqui. A comparação é pelo e-mail, então vale mesmo que a pessoa esteja na planilha.
         </p>
         <PersonForm list={excluded} onAdd={actions.addExcluded} buttonLabel="Excluir do sorteio" />
-        <div className="rounded-2xl bg-[#F3E1FF] px-4 py-3 font-extrabold text-[#A560E8]">
+        <div className="rounded-2xl bg-[#F1E7FB] px-4 py-3 font-extrabold text-[#7B3FB8]">
           {matches === 1 ? '1 pessoa da lista de participantes está excluída.' : `${matches} pessoas da lista de participantes estão excluídas.`}
         </div>
       </Card>

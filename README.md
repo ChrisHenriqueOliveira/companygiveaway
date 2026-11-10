@@ -1,6 +1,6 @@
 # 🎁 Sorteio Viceri
 
-App de uma página para sortear os prêmios da festa de fim de ano, no estilo Duolingo. Roda **100% offline** a partir de **um único arquivo**: `dist/index.html`. Os dados ficam no `localStorage` do navegador.
+App de uma página para sortear os prêmios da festa de fim de ano, com a identidade da Viceri (vermelho `#fd4237`). Roda **100% offline** a partir de **um único arquivo**: `dist/index.html`. Os dados ficam no `localStorage` do navegador.
 
 ## Gerar o arquivo
 
@@ -89,4 +89,4 @@ Os dois são independentes e valem sempre, mesmo com "reduzir movimento" ligado 
 - Uma janela de Controle por palco. Se o palco recarregar, o Controle reconecta sozinho em poucos segundos.
 - Feito para notebook + telão 16:9, não para celular.
 - O tempo de **suspense** (aba Evento) vale sempre. Se o sistema estiver com "reduzir movimento" ligado, o app só desliga os movimentos decorativos do mascote e do fundo.
-- Os assets visuais (mascote "Presentinho") são originais, inspirados no estilo Duolingo, e não usam marcas do Duolingo.
+- Identidade visual: o logo da Viceri (anel vermelho) foi recriado em vetor (`src/brand`) e é a base do mascote "Vi", do fundo animado e da caixa de presente. Toda a paleta deriva do vermelho `#fd4237` (tokens em `src/styles/index.css`): vermelho = marca, teal = secundária (complemento), verde = sucesso, vinho = perigo.

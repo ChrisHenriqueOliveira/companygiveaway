@@ -1,6 +1,6 @@
 import confetti from 'canvas-confetti';
 
-const COLORS = ['#58CC02', '#1CB0F6', '#FF4B4B', '#FFC800', '#FF9600', '#CE82FF'];
+const COLORS = ['#FD4237', '#FF8A3D', '#FFB41F', '#FF6B8B', '#19A7AD', '#8E5BD1'];
 const RAIN_X = [0.2, 0.5, 0.8, 0.35, 0.65];
 
 function safe(opts: confetti.Options) {
@@ -12,8 +12,8 @@ function safe(opts: confetti.Options) {
 }
 
 /** Explosão única (abrir o presente). */
-export function burst(origin: { x: number; y: number } = { x: 0.5, y: 0.6 }): void {
-  safe({ particleCount: 170, spread: 95, startVelocity: 48, origin });
+export function burst(origin: { x: number; y: number } = { x: 0.5, y: 0.6 }, count = 170): void {
+  safe({ particleCount: count, spread: 95, startVelocity: 48, origin });
 }
 
 /** Canhões laterais durante `ms` (revelação do ganhador). Devolve a função de limpeza. */
