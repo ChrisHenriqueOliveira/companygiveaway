@@ -215,7 +215,7 @@ export function StageApp() {
           </button>
         </div>
       )}
-      <div className="absolute bottom-4 right-4 z-20 flex gap-2 opacity-30 transition-opacity hover:opacity-100 focus-within:opacity-100">
+      <div className="absolute right-4 top-4 z-20 flex gap-2 opacity-30 transition-opacity hover:opacity-100 focus-within:opacity-100">
         <button
           type="button"
           aria-label={soundOn ? 'Desativar som' : 'Ativar som'}
