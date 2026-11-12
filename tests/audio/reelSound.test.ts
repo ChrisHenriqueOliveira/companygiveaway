@@ -43,6 +43,7 @@ class FakeParam {
   cancelScheduledValues() { return this; }
 }
 class FakeNode { connect<T>(n: T): T { return n; } disconnect() {} }
+class FakeConvolver extends FakeNode { buffer: unknown = null; }
 class FakeOsc extends FakeNode { type = 'sine'; frequency = new FakeParam(); started = false; start() { this.started = true; } stop() {} }
 class FakeGain extends FakeNode { gain = new FakeParam(); }
 class FakeFilter extends FakeNode { type = 'lowpass'; frequency = new FakeParam(); Q = new FakeParam(); }
@@ -61,6 +62,8 @@ class FakeCtx {
   createGain() { const g = new FakeGain(); this.gains.push(g); return g; }
   createBiquadFilter() { return new FakeFilter(); }
   createBufferSource() { const s = new FakeSource(); this.sources.push(s); return s; }
+  convolvers: FakeConvolver[] = [];
+  createConvolver() { const n = new FakeConvolver(); this.convolvers.push(n); return n; }
   createBuffer(_c: number, len: number) { return { getChannelData: () => new Float32Array(len) }; }
   createDynamicsCompressor() { const n = new FakeNode() as FakeNode & Record<string, FakeParam>; for (const k of ['threshold', 'knee', 'ratio', 'attack', 'release']) n[k] = new FakeParam(); return n; }
   resume() { return Promise.resolve(); }
@@ -162,7 +165,7 @@ describe('gift and confetti sounds', () => {
     vi.advanceTimersByTime(1100);
     const pulses = FakeCtx.last.oscs.length;
     expect(pulses).toBeGreaterThanOrEqual(6);
-    expect(pulses).toBeLessThanOrEqual(8);
+    expect(pulses).toBeLessThanOrEqual(9); // + o tom de expectativa que sobe por baixo
 
     stop();
     vi.advanceTimersByTime(1000);
@@ -175,3 +178,54 @@ describe('gift and confetti sounds', () => {
     expect(FakeCtx.last.oscs.length).toBe(before);
   });
 });
+
+describe('sound feels less dry (room, whoosh, tails)', () => {
+  beforeEach(async () => {
+    vi.stubGlobal('AudioContext', FakeCtx);
+    (await import('../../src/audio/reelSound')).__resetAudioForTests();
+  });
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('builds a small room (reverb) the first time sound is used, and still works without one', async () => {
+    const { unlockAudio, playWin, __resetAudioForTests } = await import('../../src/audio/reelSound');
+    unlockAudio();
+    expect(FakeCtx.last.convolvers).toHaveLength(1);
+    expect(FakeCtx.last.convolvers[0].buffer).not.toBeNull();
+
+    __resetAudioForTests();
+    class NoReverbCtx extends FakeCtx {}
+    (NoReverbCtx.prototype as unknown as { createConvolver?: unknown }).createConvolver = undefined;
+    vi.stubGlobal('AudioContext', NoReverbCtx);
+    expect(() => playWin()).not.toThrow();
+  });
+
+  it('the whoosh follows the reel speed and fades out instead of cutting', async () => {
+    const { startWhoosh } = await import('../../src/audio/reelSound');
+    const w = startWhoosh();
+    const gain = FakeCtx.last.gains[FakeCtx.last.gains.length - 1].gain;
+    w.set(2);
+    const slow = gain.calls.filter((x) => x[0] === 'lin').pop()![1];
+    w.set(25);
+    const fast = gain.calls.filter((x) => x[0] === 'lin').pop()![1];
+    expect(fast).toBeGreaterThan(slow);
+    w.stop();
+    const last = gain.calls.filter((x) => x[0] === 'lin').pop()!;
+    expect(last[1]).toBeLessThan(0.001);
+    expect(last[2]).toBeGreaterThan(0.3); // apaga em ~0,5 s, não de uma vez
+  });
+
+  it('the win chime and the confetti ring out for a second or more', async () => {
+    const { playWin, playConfetti } = await import('../../src/audio/reelSound');
+    const longest = () =>
+      Math.max(...FakeCtx.last.gains.flatMap((g) => g.gain.calls.filter((c) => c[0] === 'exp').map((c) => c[2])));
+    playWin();
+    expect(longest()).toBeGreaterThan(1.2);
+    __reset();
+    playConfetti();
+    expect(longest()).toBeGreaterThan(1.5);
+  });
+});
+
+async function __reset() {
+  (await import('../../src/audio/reelSound')).__resetAudioForTests();
+}

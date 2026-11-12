@@ -6,6 +6,7 @@ import type { Participant } from '../domain/types';
 import { useActions } from '../store/actions';
 import { useAppStore } from '../store/appStore';
 import { Avatar, Badge, Button, Card, ConfirmDialog, EmptyState, toast } from '../ui';
+import { useFileDrop } from '../ui/DropZone';
 import { ImportDialog } from './ImportDialog';
 import { PersonForm } from './PersonForm';
 import { SearchBox } from './SearchBox';
@@ -17,6 +18,11 @@ export function ParticipantsTab() {
   const draws = useAppStore((s) => s.draws);
   const [query, setQuery] = useState('');
   const [importing, setImporting] = useState(false);
+  const [dropped, setDropped] = useState<File>();
+  const drop = useFileDrop((f) => {
+    setDropped(f);
+    setImporting(true);
+  });
   const [removing, setRemoving] = useState<Participant>();
 
   const blocked = useMemo(() => new Set(excluded.map((e) => normalizeEmail(e.email))), [excluded]);
@@ -50,7 +56,7 @@ export function ParticipantsTab() {
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div {...drop.props} className={`flex flex-col gap-6 rounded-3xl ${drop.over ? 'outline-dashed outline-4 outline-offset-4 outline-feather' : ''}`}>
       <Card className="flex flex-col gap-5 p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-3">
@@ -124,7 +130,14 @@ export function ParticipantsTab() {
         )}
       </Card>
 
-      <ImportDialog open={importing} onClose={() => setImporting(false)} />
+      <ImportDialog
+        open={importing}
+        initialFile={dropped}
+        onClose={() => {
+          setImporting(false);
+          setDropped(undefined);
+        }}
+      />
       <ConfirmDialog
         open={!!removing}
         title="Remover participante"

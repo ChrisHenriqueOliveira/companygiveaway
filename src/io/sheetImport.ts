@@ -114,3 +114,53 @@ export function buildImportPreview(
   }
   return { valid, duplicates, invalid, alreadyExcluded, total: rows.length };
 }
+
+const PRIZE_HINTS = ['premio', 'prize', 'item', 'brinde', 'produto', 'descricao', 'nome', 'name'];
+const QTY_HINTS = ['quantidade', 'qtd', 'qtde', 'qte', 'quantity', 'qty', 'unidades'];
+export const MAX_PRIZE_QTY = 20;
+
+export function detectPrizeColumns(headers: string[], rows: Row[]): { name?: string; quantity?: string } {
+  const hit = (hints: string[], skip?: string) =>
+    headers.find((h) => h !== skip && hints.some((k) => fold(h).includes(k)));
+  const quantity = hit(QTY_HINTS);
+  let name = hit(PRIZE_HINTS, quantity);
+  if (!name) {
+    // sem cabeçalho reconhecível: a primeira coluna com texto (não numérico) é o nome
+    name = headers.find((h) => {
+      if (h === quantity) return false;
+      const vals = rows.slice(0, 50).map((r) => cell(r[h])).filter(Boolean);
+      return vals.length > 0 && vals.some((v) => Number.isNaN(Number(v)));
+    });
+  }
+  return { ...(name ? { name } : {}), ...(quantity ? { quantity } : {}) };
+}
+
+export interface PrizePreview {
+  items: Array<{ name: string; quantity: number }>;
+  units: number;
+  skipped: number; // linhas sem nome
+  capped: number; // quantidades acima do limite, reduzidas
+  total: number;
+}
+
+/** Cada linha vira um prêmio (quantidade vazia/inválida = 1; limitada a MAX_PRIZE_QTY). */
+export function buildPrizePreview(rows: Row[], cols: { name: string; quantity: string }): PrizePreview {
+  const items: PrizePreview['items'] = [];
+  let skipped = 0;
+  let capped = 0;
+  for (const r of rows) {
+    const name = cell(r[cols.name]);
+    if (!name) {
+      skipped++;
+      continue;
+    }
+    const raw = cols.quantity ? Math.floor(Number(cell(r[cols.quantity]).replace(',', '.'))) : 1;
+    let quantity = Number.isFinite(raw) && raw >= 1 ? raw : 1;
+    if (quantity > MAX_PRIZE_QTY) {
+      quantity = MAX_PRIZE_QTY;
+      capped++;
+    }
+    items.push({ name, quantity });
+  }
+  return { items, units: items.reduce((n, i) => n + i.quantity, 0), skipped, capped, total: rows.length };
+}

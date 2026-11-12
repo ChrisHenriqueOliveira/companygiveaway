@@ -4,9 +4,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const playTick = vi.fn();
 const playWin = vi.fn();
+const whooshSet = vi.fn();
+const whooshStop = vi.fn();
+const startWhoosh = vi.fn(() => ({ set: whooshSet, stop: whooshStop }));
 vi.mock('../../src/audio/reelSound', () => ({
   playTick: (...a: unknown[]) => playTick(...a),
   playWin: (...a: unknown[]) => playWin(...a),
+  startWhoosh: () => startWhoosh(),
   unlockAudio: () => undefined,
   __resetAudioForTests: () => undefined,
 }));
@@ -16,6 +20,34 @@ import { useReelSound } from '../../src/audio/useReelSound';
 beforeEach(() => {
   playTick.mockClear();
   playWin.mockClear();
+  whooshSet.mockClear();
+  whooshStop.mockClear();
+  startWhoosh.mockClear();
+});
+
+describe('whoosh of the spinning reel', () => {
+  it('follows the speed, and fades out (stops) when the reel goes away', () => {
+    const pos = motionValue(0);
+    const vel = motionValue(0);
+    const { unmount } = renderHook(() => useReelSound(pos, vel, true));
+    vel.set(12);
+    pos.set(0.2);
+    expect(startWhoosh).toHaveBeenCalledTimes(1);
+    expect(whooshSet).toHaveBeenLastCalledWith(12);
+    vel.set(-3);
+    expect(whooshSet).toHaveBeenLastCalledWith(3);
+    unmount();
+    expect(whooshStop).toHaveBeenCalledTimes(1);
+  });
+
+  it('makes no whoosh when sound is off', () => {
+    const pos = motionValue(0);
+    const vel = motionValue(5);
+    renderHook(() => useReelSound(pos, vel, false));
+    pos.set(1);
+    vel.set(9);
+    expect(startWhoosh).not.toHaveBeenCalled();
+  });
 });
 
 describe('useReelSound (sincronizado com a posição do rolo)', () => {

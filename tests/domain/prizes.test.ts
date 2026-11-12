@@ -27,3 +27,24 @@ describe('expandPrizeInput', () => {
     expect(() => expandPrizeInput({ name: '   ', quantity: 1 }, 1)).toThrow();
   });
 });
+
+describe('groupLabels (etiqueta X/Y segue as exclusões)', () => {
+  it('renumbers and recounts after units are removed', async () => {
+    const { groupLabels } = await import('../../src/domain/prizes');
+    const all = expandPrizeInput({ name: 'Polo', quantity: 20 }, 1);
+    const left = Object.fromEntries(all.filter((_, i) => ![1, 4, 7, 10, 13].includes(i)).map((p) => [p.id, p]));
+    const labels = groupLabels(left);
+    const ordered = Object.values(left);
+    expect(ordered).toHaveLength(15);
+    expect(labels[ordered[0].id]).toEqual({ index: 1, size: 15 });
+    expect(labels[ordered[1].id]).toEqual({ index: 2, size: 15 });
+    expect(labels[ordered[14].id]).toEqual({ index: 15, size: 15 });
+  });
+
+  it('a lone unit and ungrouped prizes have no label', async () => {
+    const { groupLabels } = await import('../../src/domain/prizes');
+    const [a] = expandPrizeInput({ name: 'Polo', quantity: 3 }, 1);
+    const [solo] = expandPrizeInput({ name: 'Fone', quantity: 1 }, 1);
+    expect(groupLabels({ [a.id]: a, [solo.id]: solo })).toEqual({});
+  });
+});

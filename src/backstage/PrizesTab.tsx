@@ -9,15 +9,18 @@ import {
 } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { ChevronDown, GripVertical, Minus, MonitorPlay, Pencil, Plus, Shuffle, Trash2 } from 'lucide-react';
-import { useState, type FormEvent } from 'react';
+import { ChevronDown, FileUp, GripVertical, Minus, MonitorPlay, Pencil, Plus, Shuffle, Trash2 } from 'lucide-react';
+import { useMemo, useState, type FormEvent } from 'react';
+import { groupLabels } from '../domain/prizes';
 import type { ID, Prize } from '../domain/types';
 import { selectActiveStage, useAppStore } from '../store/appStore';
 import { useActions } from '../store/actions';
 import { useUsage } from '../store/hooks';
 import { Badge, Button, Card, ConfirmDialog, EmptyState, Field, Modal, TextInput, toast } from '../ui';
+import { useFileDrop } from '../ui/DropZone';
 import { PrizeImage } from '../ui/PrizeImage';
 import { ImagePicker } from './ImagePicker';
+import { PrizeImportDialog } from './PrizeImportDialog';
 
 const MAX_QTY = 20;
 
@@ -25,6 +28,7 @@ function PrizeRow({
   prize,
   index,
   image,
+  group,
   inStage,
   canForce,
   onForce,
@@ -34,6 +38,7 @@ function PrizeRow({
   prize: Prize;
   index: number;
   image?: string;
+  group?: { index: number; size: number };
   inStage: boolean;
   canForce: boolean;
   onForce: () => void;
@@ -61,7 +66,7 @@ function PrizeRow({
       <span className="w-7 text-center text-lg font-black text-wolf">{index + 1}</span>
       <PrizeImage src={image} size={48} />
       <span className="min-w-0 flex-1 truncate text-lg font-extrabold text-eel">{prize.name}</span>
-      {prize.groupSize && prize.groupSize > 1 && <Badge color="purple">{`${prize.groupIndex}/${prize.groupSize}`}</Badge>}
+      {group && <Badge color="purple">{`${group.index}/${group.size}`}</Badge>}
       {inStage && <Badge color="yellow">No palco</Badge>}
       {canForce && (
         <button
@@ -136,6 +141,13 @@ export function PrizesTab() {
   const [shuffleAsk, setShuffleAsk] = useState(false);
   const [doneOpen, setDoneOpen] = useState(false);
   const [forcing, setForcing] = useState<ID>();
+  const [importing, setImporting] = useState(false);
+  const [dropped, setDropped] = useState<File>();
+  const drop = useFileDrop((f) => {
+    setDropped(f);
+    setImporting(true);
+  });
+  const labels = useMemo(() => groupLabels(prizes), [prizes]);
 
   // Há um ganhador sorteado/na tela que ainda não foi confirmado? Trocar o prêmio descarta esse sorteio.
   const hasPendingDraw = (rehearsal.active ? rehearsal.draws : draws).some((d) => d.status === 'pending');
@@ -183,7 +195,7 @@ export function PrizesTab() {
   const winners = draws.filter((d) => d.status === 'confirmed');
 
   return (
-    <div className="flex flex-col gap-6">
+    <div {...drop.props} className={`flex flex-col gap-6 rounded-3xl ${drop.over ? 'outline-dashed outline-4 outline-offset-4 outline-feather' : ''}`}>
       {usage.ratio > 0.8 && (
         <div className="rounded-2xl border-2 border-bee bg-[#FFF3D4] px-4 py-3 font-extrabold text-fox">
           O armazenamento está quase cheio ({Math.round(usage.ratio * 100)}%). Remova imagens ou baixe um backup.
@@ -222,13 +234,18 @@ export function PrizesTab() {
             <h3 className="text-xl font-black text-eel">Fila de sorteio</h3>
             <Badge color="blue">{queued.length} na fila</Badge>
           </div>
-          <Button variant="ghost" icon={<Shuffle size={16} strokeWidth={3} />} disabled={queued.length < 2} onClick={() => setShuffleAsk(true)}>
-            Embaralhar fila
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="ghost" icon={<FileUp size={16} strokeWidth={3} />} onClick={() => setImporting(true)}>
+              Importar planilha
+            </Button>
+            <Button variant="ghost" icon={<Shuffle size={16} strokeWidth={3} />} disabled={queued.length < 2} onClick={() => setShuffleAsk(true)}>
+              Embaralhar fila
+            </Button>
+          </div>
         </div>
 
         {queued.length === 0 ? (
-          <EmptyState title="A fila está vazia" description="Cadastre prêmios acima. A ordem aqui é a ordem do sorteio." />
+          <EmptyState title="A fila está vazia" description="Cadastre prêmios acima ou importe uma planilha (botão “Importar planilha” ou arraste o arquivo para cá). A ordem aqui é a ordem do sorteio." />
         ) : (
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
             <SortableContext items={queued} strategy={verticalListSortingStrategy}>
@@ -238,6 +255,7 @@ export function PrizesTab() {
                     key={id}
                     prize={prizes[id]}
                     index={i}
+                    group={labels[id]}
                     image={prizes[id].imageId ? images[prizes[id].imageId!] : undefined}
                     inStage={id === inStageId}
                     canForce={!(id === inStageId && stage.phase === 'prizeReveal')}
@@ -288,6 +306,14 @@ export function PrizesTab() {
           onClose={() => setEditing(undefined)}
         />
       )}
+      <PrizeImportDialog
+        open={importing}
+        initialFile={dropped}
+        onClose={() => {
+          setImporting(false);
+          setDropped(undefined);
+        }}
+      />
       <ConfirmDialog
         open={!!forcing}
         title="Mandar para o palco"

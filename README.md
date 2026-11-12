@@ -40,14 +40,20 @@ Os botões "tela preta" dos passadores de slide (`B`, `.`, `W`) e `PageUp` são 
 
 ### Som
 
-Quatro momentos, todos sintetizados (sem arquivos) e discretos:
+Quatro momentos, todos sintetizados (sem arquivos), com "eco de sala" (reverb) para não soarem secos:
 
-- **Presente:** um chocalho suave a cada balanço da caixa, ficando mais forte até estourar, e um "pop" com um sopro de ar quando a tampa voa.
-- **Roleta:** um **tique por nome que passa pelo centro**, no ritmo exato da animação (mais agudo e baixinho quando rápido, mais grave e firme quando devagar), e uma comemoração curta de 3 notas quando o ganhador é selecionado.
-- **"Temos um sortudo!":** dois estouros de canhão de confete e um chuvisco de brilhinhos, junto com o confete visual.
+- **Presente:** um chocalho a cada balanço da caixa, ficando mais forte, com um tom suave de expectativa subindo por baixo até estourar; o "pop" vem com sopro de ar e sininhos.
+- **Roleta:** um **tique por nome que passa pelo centro**, no ritmo exato da animação, mais um sopro de ar que acompanha a velocidade do giro e apaga junto com a desaceleração; quando o ganhador é selecionado, um arpejo de sinos com cauda.
+- **"Temos um sortudo!":** dois estouros de canhão de confete, um chuvisco de brilhinhos e sininhos ecoando, junto com o confete visual.
 - O resto (tela inicial, mural) é silencioso.
 
 Liga/desliga pelo ícone de alto-falante ao lado do monitor (canto inferior direito do palco), pela tecla `M` ou na aba Evento. O som toca no computador do palco; o navegador só libera áudio depois da primeira tecla/clique.
+
+### Importar por planilha (colaboradores e prêmios)
+
+- **Colaboradores** (aba Participantes) e **prêmios** (aba Prêmios → "Importar planilha"): clique em escolher o arquivo ou **arraste a planilha** (.xlsx, .xls ou .csv) para dentro da aba ou do diálogo.
+- Prêmios: uma coluna com o nome do prêmio e, se quiser, uma de quantidade (`Prêmio`, `Item`, `Quantidade`, `Qtd`…). Quantidade vazia vale 1 e o máximo é 20 por linha; cada unidade vira um prêmio separado na fila. As colunas são detectadas sozinhas e dá para trocar na prévia. As imagens são colocadas depois, editando cada prêmio.
+- A etiqueta "X/Y" dos prêmios repetidos acompanha as exclusões (20 polos, apaga 5: ficam 1/15 … 15/15).
 
 ### Mural final e folha de ganhadores
 

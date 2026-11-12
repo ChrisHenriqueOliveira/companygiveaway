@@ -4,18 +4,21 @@ import { buildImportPreview, detectColumns, readSheetFile, type Row } from '../i
 import { useActions } from '../store/actions';
 import { useAppStore } from '../store/appStore';
 import { Avatar, Badge, Button, Field, Modal, toast } from '../ui';
+import { DropZone } from '../ui/DropZone';
 import { cn } from '../ui';
 
 interface Props {
   open: boolean;
   onClose: () => void;
+  /** Planilha já solta na aba (arrastada para fora do diálogo). */
+  initialFile?: File;
 }
 
 type Mode = 'replace' | 'append';
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
-export function ImportDialog({ open, onClose }: Props) {
+export function ImportDialog({ open, onClose, initialFile }: Props) {
   const actions = useActions();
   const excluded = useAppStore((s) => s.excluded);
   const existing = useAppStore((s) => s.participants.length);
@@ -29,6 +32,7 @@ export function ImportDialog({ open, onClose }: Props) {
       setSheet(null);
       setCols({ name: '', email: '' });
       setMode(existing > 0 ? 'append' : 'replace');
+      if (initialFile) void onFile(initialFile);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
@@ -65,23 +69,13 @@ export function ImportDialog({ open, onClose }: Props) {
   return (
     <Modal open={open} onClose={onClose} title="Importar planilha" size="lg">
       <div className="flex flex-col gap-5">
-        <label className="flex cursor-pointer items-center gap-4 rounded-2xl border-2 border-dashed border-swan bg-polar p-5 transition hover:border-macaw">
-          <FileSpreadsheet size={36} strokeWidth={2.5} className="text-macaw" />
-          <span className="flex flex-col">
-            <span className="text-lg font-extrabold text-eel">{sheet ? sheet.fileName : 'Escolher planilha'}</span>
-            <span className="text-sm font-bold text-wolf">Excel (.xlsx, .xls) ou CSV com nome e e-mail</span>
-          </span>
-          <input
-            type="file"
-            accept=".xlsx,.xls,.csv"
-            className="sr-only"
-            aria-label="Arquivo da planilha"
-            onChange={(e) => {
-              void onFile(e.target.files?.[0]);
-              e.target.value = '';
-            }}
-          />
-        </label>
+        <DropZone
+          onFile={(f) => void onFile(f)}
+          ariaLabel="Arquivo da planilha"
+          icon={<FileSpreadsheet size={36} strokeWidth={2.5} className="text-macaw" />}
+          title={sheet ? sheet.fileName : 'Escolher ou arrastar a planilha'}
+          hint="Excel (.xlsx, .xls) ou CSV com nome e e-mail"
+        />
 
         {sheet && (
           <>

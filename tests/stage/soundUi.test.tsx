@@ -21,6 +21,7 @@ vi.mock('../../src/audio/reelSound', () => ({
   playPop: (...a: unknown[]) => playPop(...a),
   playConfetti: (...a: unknown[]) => playConfetti(...a),
   startRattle: (...a: unknown[]) => startRattle(...a),
+  startWhoosh: () => ({ set: () => undefined, stop: () => undefined }),
   unlockAudio: () => undefined,
   __resetAudioForTests: () => undefined,
 }));

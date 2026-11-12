@@ -10,10 +10,11 @@ export function PrizeShowcase({ prizeId, compact = false }: { prizeId?: string; 
   if (!prize) return null;
 
   if (compact) {
+    // Durante o rolo: imagem em destaque acima do nome (menor que na revelação do ganhador).
     return (
-      <div className="flex items-center gap-4 rounded-[28px] border-2 border-b-[6px] border-swan bg-white px-6 py-3">
-        <PrizeImage src={image} size={64} />
-        <span className="text-[clamp(1.5rem,2.6vw,2.8rem)] font-black text-eel">{prize.name}</span>
+      <div className="flex max-w-[80vw] flex-col items-center gap-2 text-center">
+        <PrizeImage src={image} fit="contain" size={Math.round(Math.min(h * 0.22, 230))} className="!rounded-[28px] !border-4 shadow-lg" />
+        <span className="text-[clamp(1.4rem,2.4vw,2.6rem)] font-black leading-tight text-eel">{prize.name}</span>
       </div>
     );
   }

@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { Check, X } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { Presentinho } from '../../mascot/Presentinho';
 import { useWindowSize } from '../useWindowSize';
 import { useAppStore } from '../../store/appStore';
@@ -26,9 +26,20 @@ export function SetupScreen({ onOpenBackstage }: { onOpenBackstage: () => void }
             transition={{ delay: 0.15 * i, type: 'spring', stiffness: 380, damping: 26 }}
             className="flex items-center gap-4 rounded-2xl border-2 border-b-4 border-swan bg-white px-6 py-3 text-2xl font-extrabold text-eel"
           >
-            <span className={`inline-flex h-9 w-9 items-center justify-center rounded-full text-white ${it.ok ? 'bg-success' : 'bg-cardinal'}`}>
-              {it.ok ? <Check size={22} strokeWidth={4} /> : <X size={22} strokeWidth={4} />}
-            </span>
+            {it.ok ? (
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-success text-white">
+                <Check size={22} strokeWidth={4} />
+              </span>
+            ) : (
+              <span role="status" aria-label="Aguardando" className="relative inline-flex h-9 w-9 items-center justify-center">
+                <span className="absolute inset-0 rounded-full border-4 border-swan" />
+                <motion.span
+                  className="absolute inset-0 rounded-full border-4 border-transparent border-t-feather"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 0.9, repeat: Infinity, ease: 'linear' }}
+                />
+              </span>
+            )}
             {it.label}
           </motion.li>
         ))}
